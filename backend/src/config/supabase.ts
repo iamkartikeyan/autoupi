@@ -21,7 +21,8 @@ export const supabase = createClient(supabaseUrl, supabaseServiceKey, {
 
 export async function testConnection() {
   try {
-    const { data, error } = await supabase.from('users').select('count').limit(1);
+    // Use a real column to verify DB/table connectivity during boot.
+    const { error } = await supabase.from('users').select('id').limit(1);
     if (error) throw error;
     console.log('✅ Supabase connected successfully');
     return true;

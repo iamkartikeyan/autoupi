@@ -2,6 +2,7 @@
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { CheckCircle, XCircle, Zap, ArrowRight, Clock, DollarSign, Eye, AlertTriangle, Globe, MessageSquare } from 'lucide-react';
+import BrandLogo from '@/components/ui/BrandLogo';
 
 const ROWS = [
   { icon: Clock, label: 'Settlement Time', bank: '3-5 Business Days', autoupi: '8 Seconds ⚡', bankBad: true },
@@ -27,10 +28,7 @@ export default function ComparePage() {
       <nav className="bg-white border-b border-surface-4/60 sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
           <button onClick={() => router.push('/send')} className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary-500 to-accent-500 flex items-center justify-center">
-              <Zap className="w-4 h-4 text-white" />
-            </div>
-            <span className="font-bold text-slate-800">AutoUPI</span>
+            <BrandLogo size={32} textClassName="font-bold text-slate-800" />
           </button>
           <button onClick={() => router.push('/send')} className="btn-primary text-sm py-2.5">
             Send Money Now <ArrowRight className="w-4 h-4" />

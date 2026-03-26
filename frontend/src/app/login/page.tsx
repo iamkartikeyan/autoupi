@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
 import { ArrowRight, Phone, Mail, User, Shield, Zap, Globe, CheckCircle, ChevronLeft } from 'lucide-react';
 import { authApi, saveAuthData, isAuthenticated } from '@/lib/api';
+import BrandLogo from '@/components/ui/BrandLogo';
 
 const FEATURES = [
   { icon: Zap, label: '8-second settlement', color: 'text-yellow-400' },
@@ -107,12 +108,12 @@ export default function LoginPage() {
 
         <div className="relative z-10">
           {/* Logo */}
-          <div className="flex items-center gap-3 mb-16">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-400 to-accent-500 flex items-center justify-center shadow-glow">
-              <Zap className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-2xl font-bold text-white tracking-tight">AutoUPI</span>
-          </div>
+          <BrandLogo
+            className="mb-16"
+            size={44}
+            priority
+            textClassName="text-2xl font-bold text-white tracking-tight"
+          />
 
           <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
             <h1 className="text-5xl font-bold text-white leading-tight mb-6 text-balance">
@@ -163,11 +164,8 @@ export default function LoginPage() {
       <div className="flex-1 flex items-center justify-center p-6 lg:p-12">
         <div className="w-full max-w-md">
           {/* Mobile Logo */}
-          <div className="lg:hidden flex items-center gap-3 mb-10">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary-500 to-accent-500 flex items-center justify-center">
-              <Zap className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-xl font-bold text-white">AutoUPI</span>
+          <div className="lg:hidden mb-10">
+            <BrandLogo size={36} priority textClassName="text-xl font-bold text-white" />
           </div>
 
           <AnimatePresence mode="wait">

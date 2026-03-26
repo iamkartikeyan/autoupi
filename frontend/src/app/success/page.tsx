@@ -28,7 +28,7 @@ function SuccessPageInner() {
 
   useEffect(() => {
     if (txnId) {
-      transactionApi.get(txnId).then(res => setTxn(res.data.data)).catch(() => {});
+      transactionApi.get(txnId).then(res => setTxn(res.data.data)).catch(() => { });
     }
   }, [txnId]);
 

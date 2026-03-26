@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { adminApi, getStoredUser, clearAuth, isAuthenticated } from '@/lib/api';
 import toast from 'react-hot-toast';
+import BrandLogo from '@/components/ui/BrandLogo';
 
 const CHART_DATA = Array.from({ length: 12 }, (_, i) => ({
   month: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][i],
@@ -96,14 +97,9 @@ export default function AdminPage() {
       {/* Sidebar */}
       <aside className="w-60 bg-slate-900 border-r border-white/5 flex flex-col hidden lg:flex">
         <div className="p-5 border-b border-white/5">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary-500 to-accent-500 flex items-center justify-center">
-              <Zap className="w-5 h-5 text-white" />
-            </div>
-            <div>
-              <div className="font-bold text-white text-sm">AutoUPI</div>
-              <div className="text-xs text-slate-500">Admin Console</div>
-            </div>
+          <div className="space-y-1">
+            <BrandLogo size={36} textClassName="font-bold text-white text-sm" />
+            <div className="text-xs text-slate-500 pl-[46px]">Admin Console</div>
           </div>
         </div>
 

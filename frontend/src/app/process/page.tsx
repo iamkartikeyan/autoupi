@@ -3,7 +3,8 @@ import { useEffect, useState, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { io, Socket } from 'socket.io-client';
-import { CheckCircle, Circle, Loader2, Zap, Shield, Lock, Database, Rocket, Bell } from 'lucide-react';
+import { CheckCircle, Circle, Loader2, Shield, Lock, Database, Rocket, Bell } from 'lucide-react';
+import BrandLogo from '@/components/ui/BrandLogo';
 
 const STEP_ICONS: Record<string, React.ElementType> = {
   kyc: Shield, aml: Shield, rate_lock: Lock,
@@ -35,7 +36,7 @@ function ProcessPageInner() {
   const [progress, setProgress] = useState(0);
   const logsEndRef = useRef<HTMLDivElement>(null);
   const socketRef = useRef<Socket | null>(null);
-  const timerRef = useRef<NodeJS.Timeout>();
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
     if (!txnId) { router.push('/send'); return; }
@@ -71,7 +72,7 @@ function ProcessPageInner() {
     });
 
     socket.on('txn_complete', (data: { hash: string; timeTaken: string }) => {
-      clearInterval(timerRef.current);
+      if (timerRef.current) clearInterval(timerRef.current);
       setHash(data.hash);
       setStatus('complete');
       setProgress(100);
@@ -80,13 +81,13 @@ function ProcessPageInner() {
     });
 
     socket.on('txn_failed', () => {
-      clearInterval(timerRef.current);
+      if (timerRef.current) clearInterval(timerRef.current);
       setStatus('failed');
       addLog('system', 'ERROR', '❌ Transaction failed. Please try again.');
     });
 
     return () => {
-      clearInterval(timerRef.current);
+      if (timerRef.current) clearInterval(timerRef.current);
       socket.disconnect();
     };
   }, [txnId, router]);
@@ -112,10 +113,7 @@ function ProcessPageInner() {
       {/* Top bar */}
       <div className="bg-slate-900/50 border-b border-white/5 px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary-500 to-accent-500 flex items-center justify-center">
-            <Zap className="w-4 h-4 text-white" />
-          </div>
-          <span className="font-bold text-white">AutoUPI</span>
+          <BrandLogo size={32} textClassName="font-bold text-white" />
           <span className="text-slate-600 text-sm">/ Settlement Processing</span>
         </div>
         <div className="flex items-center gap-3">
@@ -183,11 +181,10 @@ function ProcessPageInner() {
                     transition={{ delay: i * 0.05 }}
                   >
                     {/* Icon */}
-                    <div className={`relative w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 transition-all duration-500 ${
-                      step.status === 'done' ? 'bg-success-500' :
-                      step.status === 'processing' ? 'bg-primary-500/20 border border-primary-500/50' :
-                      'bg-slate-800 border border-slate-700'
-                    }`}>
+                    <div className={`relative w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 transition-all duration-500 ${step.status === 'done' ? 'bg-success-500' :
+                        step.status === 'processing' ? 'bg-primary-500/20 border border-primary-500/50' :
+                          'bg-slate-800 border border-slate-700'
+                      }`}>
                       {step.status === 'done' ? (
                         <CheckCircle className="w-5 h-5 text-white" />
                       ) : step.status === 'processing' ? (
@@ -209,11 +206,10 @@ function ProcessPageInner() {
                       </div>
                     </div>
 
-                    <div className={`text-xs font-mono px-2 py-0.5 rounded-full ${
-                      step.status === 'done' ? 'bg-success-500/20 text-success-400' :
-                      step.status === 'processing' ? 'bg-primary-500/20 text-primary-300 animate-pulse' :
-                      'bg-slate-800 text-slate-600'
-                    }`}>
+                    <div className={`text-xs font-mono px-2 py-0.5 rounded-full ${step.status === 'done' ? 'bg-success-500/20 text-success-400' :
+                        step.status === 'processing' ? 'bg-primary-500/20 text-primary-300 animate-pulse' :
+                          'bg-slate-800 text-slate-600'
+                      }`}>
                       {step.status === 'done' ? 'DONE' : step.status === 'processing' ? 'ACTIVE' : 'WAIT'}
                     </div>
                   </motion.div>

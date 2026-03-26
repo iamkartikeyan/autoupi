@@ -2,8 +2,9 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { Zap, ArrowRight, Clock, CheckCircle, XCircle, Loader2, LogOut, TrendingUp, Send } from 'lucide-react';
+import { ArrowRight, Clock, CheckCircle, XCircle, Loader2, LogOut, TrendingUp, Send } from 'lucide-react';
 import { transactionApi, getStoredUser, clearAuth, isAuthenticated } from '@/lib/api';
+import BrandLogo from '@/components/ui/BrandLogo';
 
 interface Transaction {
   id: string; amount: number; currency: string; target_currency: string;
@@ -54,10 +55,7 @@ export default function DashboardPage() {
       <nav className="bg-white/90 backdrop-blur-md border-b border-surface-4/60 sticky top-0 z-50">
         <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
           <button onClick={() => router.push('/send')} className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary-500 to-accent-500 flex items-center justify-center">
-              <Zap className="w-4 h-4 text-white" />
-            </div>
-            <span className="font-bold text-slate-800">AutoUPI</span>
+            <BrandLogo size={32} textClassName="font-bold text-slate-800" />
           </button>
           <div className="flex items-center gap-2">
             <button onClick={() => router.push('/send')} className="btn-primary text-xs py-2 px-4">

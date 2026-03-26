@@ -1,260 +1,197 @@
-# 🚀 AutoUPI – Cross-Border Settlement Layer
+# ⚡ AutoUPI — Cross-Border Payments in 8 Seconds
 
-> Send money internationally in **8 seconds** with 0.5% fees. Powered by UPI + Blockchain.
+<div align="center">
 
-[![Deploy Frontend](https://vercel.com/button)](https://vercel.com/new)
-[![Deploy Backend](https://railway.app/button.svg)](https://railway.app)
+![AutoUPI Banner](https://img.shields.io/badge/AutoUPI-Cross--Border%20Payments-2563EB?style=for-the-badge&logo=lightning&logoColor=white)
+![Next.js](https://img.shields.io/badge/Next.js-16-black?style=for-the-badge&logo=next.js)
+![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?style=for-the-badge&logo=typescript)
+![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-3ECF8E?style=for-the-badge&logo=supabase)
+![Socket.io](https://img.shields.io/badge/Socket.io-Realtime-010101?style=for-the-badge&logo=socket.io)
+
+**Send money internationally in 8 seconds. 2% fee. Real-time blockchain tracking.**
+
+[🚀 Live Demo](#) · [📹 Demo Video](#) · [📄 Docs](#tech-stack)
+
+</div>
 
 ---
 
-## 📋 Project Structure
+## 🎯 Problem Statement
+
+Traditional international wire transfers take **3–5 business days** and charge **3–7% in fees**. AutoUPI solves this using India's UPI infrastructure + a cross-border settlement layer to complete payments in under **8 seconds** with only **2% fee**.
+
+---
+
+## ✨ Features
+
+- 🔐 **OTP-based Auth** — Phone + Email login with JWT sessions
+- 💸 **Multi-Currency Support** — INR → AED, USD, EUR, GBP
+- ⚡ **8-Second Settlement** — Real-time WebSocket pipeline tracking
+- 📊 **Live Rate Ticker** — Exchange rates updated every second
+- 🔗 **Blockchain Hash** — Every transaction gets an on-chain verification hash
+- 📱 **Mobile-First UI** — OLED dark theme, Framer Motion animations
+- 📜 **Transaction History** — Full paginated dashboard with stats
+- 🛡️ **KYC + AML Pipeline** — Simulated compliance checking
+
+---
+
+## 🧱 Tech Stack
+
+### Frontend
+| Tech | Purpose |
+|------|---------|
+| **Next.js 16** (App Router) | Framework |
+| **TypeScript** | Type safety |
+| **TailwindCSS** | Styling |
+| **Framer Motion** | Animations |
+| **Socket.io Client** | Real-time updates |
+| **Axios** | API calls |
+| **Lucide React** | Icons |
+| **React Hot Toast** | Notifications |
+
+### Backend
+| Tech | Purpose |
+|------|---------|
+| **Express.js** | API server |
+| **TypeScript** | Type safety |
+| **Supabase** (PostgreSQL) | Database |
+| **Socket.io** | WebSocket real-time |
+| **JWT** | Authentication |
+| **Twilio** | OTP/SMS (optional) |
+| **Zod** | Request validation |
+| **Helmet + Rate Limit** | Security |
+
+---
+
+## 🚀 Quick Start (Local)
+
+### Prerequisites
+- Node.js 18+
+- npm or yarn
+- Supabase account (free tier works)
+
+### 1. Clone the repo
+```bash
+git clone https://github.com/iamkartikeyan/autoupi.git
+cd autoupi
+```
+
+### 2. Setup Backend
+```bash
+cd backend
+npm install
+cp .env.example .env
+# Fill in your Supabase credentials in .env
+npm run dev
+```
+
+### 3. Setup Frontend
+```bash
+cd frontend
+npm install
+cp .env.example .env.local
+# Edit .env.local — set NEXT_PUBLIC_API_URL=http://localhost:5000
+npm run dev
+```
+
+### 4. Open
+```
+Frontend → http://localhost:3000
+Backend  → http://localhost:5000
+```
+
+### 5. Demo Login
+Use these credentials to skip real OTP:
+```
+Phone:  +911234567890
+Email:  demo@autoupi.com
+Name:   Demo User
+OTP:    123456
+```
+
+---
+
+## 🗄️ Database Setup (Supabase)
+
+1. Go to [supabase.com](https://supabase.com) → New Project
+2. Run the SQL from `backend/src/utils/seed.ts` in the SQL editor
+3. Copy your **SUPABASE_URL** and **SUPABASE_SERVICE_KEY** into `backend/.env`
+
+---
+
+## 📁 Project Structure
 
 ```
 autoupi/
-├── frontend/        → Next.js 14 + Tailwind + Framer Motion (Deploy on Vercel)
-└── backend/         → Express.js + TypeScript + Socket.io (Deploy on Railway)
-```
-
-## 🛠 Tech Stack
-
-| Layer | Technology |
-|-------|-----------|
-| Frontend | Next.js 14, Tailwind CSS, Framer Motion, Socket.io Client |
-| Backend | Node.js, Express, TypeScript, Socket.io |
-| Database | Supabase (PostgreSQL) |
-| Auth | JWT + Phone OTP |
-| Realtime | WebSocket (Socket.io) |
-| Deploy | Vercel (Frontend) + Railway (Backend) |
-
----
-
-## ⚡ Quick Start (Local Development)
-
-### Step 1: Clone & Install
-
-```bash
-git clone https://github.com/yourusername/autoupi.git
-cd autoupi
-
-# Install backend
-cd backend && npm install
-
-# Install frontend
-cd ../frontend && npm install
-```
-
-### Step 2: Setup Supabase
-
-1. Go to [supabase.com](https://supabase.com) → Create new project
-2. Go to **SQL Editor** → Paste contents of `backend/supabase-schema.sql` → Run
-3. Go to **Settings → API** → Copy:
-   - `Project URL` → `SUPABASE_URL`
-   - `service_role key` → `SUPABASE_SERVICE_KEY`
-
-### Step 3: Configure Environment
-
-```bash
-# Backend
-cd backend
-cp .env.example .env
-# Edit .env with your Supabase credentials
-
-# Frontend
-cd ../frontend
-cp .env.example .env.local
-# Set NEXT_PUBLIC_API_URL=http://localhost:5000
-```
-
-### Step 4: Seed Database
-
-```bash
-cd backend
-npm run seed
-```
-
-### Step 5: Run Both Servers
-
-```bash
-# Terminal 1 - Backend
-cd backend && npm run dev
-
-# Terminal 2 - Frontend
-cd frontend && npm run dev
-```
-
-Visit: http://localhost:3000
-
----
-
-## 🌐 Production Deployment
-
-### Part 1: Deploy Backend on Railway
-
-1. Go to [railway.app](https://railway.app) → New Project → Deploy from GitHub
-2. Select `autoupi/backend` folder
-3. Add Environment Variables:
-   ```
-   PORT=5000
-   NODE_ENV=production
-   SUPABASE_URL=<your-supabase-url>
-   SUPABASE_SERVICE_KEY=<your-service-key>
-   JWT_SECRET=<random-64-char-string>
-   FRONTEND_URL=<your-vercel-url>
-   DEMO_MODE=true
-   DEMO_MODE_SPEED=normal
-   ```
-4. Railway auto-deploys. Copy the deployed URL (e.g., `https://autoupi-backend.railway.app`)
-
-### Part 2: Deploy Frontend on Vercel
-
-1. Go to [vercel.com](https://vercel.com) → New Project → Import from GitHub
-2. Select `autoupi/frontend` folder
-3. Add Environment Variables:
-   ```
-   NEXT_PUBLIC_API_URL=https://autoupi-backend.railway.app
-   NEXT_PUBLIC_WS_URL=https://autoupi-backend.railway.app
-   ```
-4. Deploy! Vercel gives you a URL like `https://autoupi.vercel.app`
-
-### Part 3: Update CORS
-
-Go back to Railway → Update `FRONTEND_URL` to your Vercel URL.
-
----
-
-## 🔑 Demo Credentials
-
-| Role | Phone | Email | Password/OTP |
-|------|-------|-------|-------------|
-| Demo User | +911234567890 | demo@autoupi.com | 123456 |
-| Admin | +919999999999 | admin@autoupi.com | 123456 |
-
-> 💡 **Demo Mode**: When `DEMO_MODE=true`, OTP is always `123456` for any phone number.
-
----
-
-## 📱 Application Pages
-
-| Page | URL | Description |
-|------|-----|-------------|
-| Login | `/login` | Phone OTP authentication |
-| Send Money | `/send` | Main transaction form |
-| Processing | `/process?id=<txn_id>` | Live WebSocket settlement tracking |
-| Success | `/success?id=<txn_id>` | Confetti + transaction receipt |
-| Dashboard | `/dashboard` | Transaction history |
-| Compare | `/compare` | AutoUPI vs Banks |
-| Admin | `/admin` | Full admin panel (admin only) |
-
----
-
-## 🏗 Architecture
-
-```
-┌─────────────────┐        ┌──────────────────┐        ┌──────────────┐
-│   Next.js       │ HTTP   │   Express API     │  SQL   │  Supabase    │
-│   Frontend      │◄──────►│   (Railway)       │◄──────►│  PostgreSQL  │
-│   (Vercel)      │        │                  │        │              │
-│                 │ WS     │   Socket.io       │        └──────────────┘
-│   Processing    │◄──────►│   Real-time logs  │
-│   Screen        │        │                  │
-└─────────────────┘        └──────────────────┘
+├── frontend/                 # Next.js App
+│   ├── src/
+│   │   ├── app/
+│   │   │   ├── login/        # OTP Auth
+│   │   │   ├── send/         # Send Money
+│   │   │   ├── process/      # Real-time Tracking
+│   │   │   ├── success/      # Confirmation
+│   │   │   ├── dashboard/    # History
+│   │   │   └── compare/      # Bank Comparison
+│   │   ├── components/ui/    # Shared Components
+│   │   ├── lib/api.ts        # API Client
+│   │   └── styles/           # Global CSS
+│   └── .env.example
+│
+├── backend/                  # Express.js API
+│   ├── src/
+│   │   ├── routes/           # API Routes
+│   │   ├── middleware/       # Auth, Rate limit
+│   │   ├── config/           # Supabase config
+│   │   └── utils/            # Helpers, Seed
+│   └── .env.example
+│
+└── README.md
 ```
 
 ---
 
-## ⚙️ API Endpoints
+## 🌊 Transaction Flow
 
 ```
-POST /api/v1/auth/request-otp     → Send OTP
-POST /api/v1/auth/verify-otp      → Verify OTP + Login
-GET  /api/v1/auth/me              → Get current user
-
-POST /api/v1/transactions/initiate → Start transaction (triggers WebSocket)
-GET  /api/v1/transactions/:id     → Get transaction details
-GET  /api/v1/transactions/history → User's transaction history
-GET  /api/v1/rates                → Current exchange rates
-
-GET  /api/v1/admin/stats          → Dashboard metrics
-GET  /api/v1/admin/pools          → Liquidity pool status
-GET  /api/v1/admin/transactions   → All transactions
-GET  /api/v1/admin/users          → All users
-POST /api/v1/admin/pools/rebalance → Rebalance pool
+User enters amount → OTP Login → Payment initiated
+       ↓
+  KYC Check → AML Compliance → Rate Lock
+       ↓
+  Liquidity Pool → Cross-Border Settlement
+       ↓
+  Blockchain Hash → Recipient Notified → Done ✅
 ```
+
+All steps visible in real-time via **WebSocket** on the Process page.
 
 ---
 
-## 🎬 WebSocket Events
+## 🔑 Environment Variables
 
-```javascript
-// Client emits
-socket.emit('join_transaction', transactionId)
-socket.emit('join_admin')
+### Backend (`backend/.env`)
+```env
+PORT=5000
+SUPABASE_URL=https://xxx.supabase.co
+SUPABASE_SERVICE_KEY=your-service-key
+JWT_SECRET=your-jwt-secret
+DEMO_MODE=true
+```
 
-// Server emits
-socket.on('txn_status', { status })
-socket.on('txn_log', { step, status, message, timestamp })
-socket.on('txn_complete', { hash, timeTaken })
-socket.on('txn_failed', { error })
-socket.on('admin_update', { type, transactionId })
+### Frontend (`frontend/.env.local`)
+```env
+NEXT_PUBLIC_API_URL=http://localhost:5000
+NEXT_PUBLIC_WS_URL=http://localhost:5000
 ```
 
 ---
 
-## 🌱 Seed Script
+## 👨‍💻 Built By
 
-```bash
-cd backend
-npm run seed
-
-# Creates:
-# - 1 admin user (admin@autoupi.com)
-# - 5 demo users
-# - 5 liquidity pools (INR, AED, USD, EUR, GBP)
-# - 60 historical transactions
-```
+**Kartikeyan Sahani** — Hackathon 2025
 
 ---
 
-## 🔒 Security Features
-
-- JWT authentication with 7-day expiry
-- Phone OTP verification (Twilio in production)
-- Rate limiting (200 req/15min global, 5 transactions/min)
-- Helmet.js security headers
-- CORS whitelist
-- Input validation with Zod
-- SQL injection protection via Supabase parameterized queries
-- Row Level Security on Supabase tables
-
----
-
-## 📊 Demo Mode
-
-Set `DEMO_MODE=true` in backend `.env`:
-- OTP is always `123456`
-- Settlement animations run at configurable speed
-- Pre-seeded demo data available
-
-`DEMO_MODE_SPEED=fast` → 20% of normal speed (for quick demos)
-`DEMO_MODE_SPEED=normal` → Realistic 8-second flow
-
----
-
-## 🏆 Hackathon Tips
-
-1. **Start with demo user** → Fill form → Submit → Watch Processing screen (most impressive!)
-2. **Show Admin panel** → Live stats, liquidity pools, transaction feed
-3. **Compare page** → Use for judge Q&A about differentiation
-4. **Demo mode speed** → Set to `fast` if time-constrained during demo
-
----
-
-## 👥 Team
-
-Built with ❤️ for the Hackathon
-
----
-
-## 📄 License
-
-MIT
+<div align="center">
+  <b>AutoUPI · Powered by UPI + Blockchain</b><br/>
+  <i>Making cross-border payments as fast as sending a WhatsApp message</i>
+</div>
