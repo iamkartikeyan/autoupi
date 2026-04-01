@@ -35,6 +35,9 @@ export const authApi = {
   requestOTP: (phone: string, email: string) => api.post('/auth/request-otp', { phone, email }),
   verifyOTP: (phone: string, email: string, fullName: string, otp: string) =>
     api.post('/auth/verify-otp', { phone, email, fullName, otp }),
+  loginPassword: (phone: string, password: string) => api.post('/auth/login', { phone, password }),
+  registerPassword: (phone: string, email: string, fullName: string, password: string) =>
+    api.post('/auth/register', { phone, email, fullName, password }),
   getMe: () => api.get('/auth/me'),
 };
 

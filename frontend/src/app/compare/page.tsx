@@ -1,223 +1,494 @@
 'use client';
+import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { motion } from 'framer-motion';
-import { CheckCircle, XCircle, Zap, ArrowRight, Clock, DollarSign, Eye, AlertTriangle, Globe, MessageSquare } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import {
+  CheckCircle, Zap, ArrowRight, Clock,
+  AlertTriangle, Globe, Rocket, Turtle,
+  TrendingUp, Share2, Info, ChevronDown,
+  DollarSign, Landmark, CreditCard, Eye, Bell
+} from 'lucide-react';
+import {
+  BarChart, Bar, XAxis, YAxis, CartesianGrid,
+  Tooltip, ResponsiveContainer, Cell, PieChart, Pie
+} from 'recharts';
+import toast from 'react-hot-toast';
 import BrandLogo from '@/components/ui/BrandLogo';
+import TimelineComparison from '@/components/features/TimelineComparison';
 
-const ROWS = [
-  { icon: Clock, label: 'Settlement Time', bank: '3-5 Business Days', autoupi: '8 Seconds ⚡', bankBad: true },
-  { icon: DollarSign, label: 'Transaction Fee', bank: '₹500 – ₹1,500 (3-5%)', autoupi: '₹50 (0.5%)', bankBad: true },
-  { icon: Eye, label: 'Tracking & Transparency', bank: 'Minimal ❌', autoupi: '100% Real-Time ✅', bankBad: true },
-  { icon: AlertTriangle, label: 'Hidden Charges', bank: 'Yes (Correspondent Bank)', autoupi: 'None ✅', bankBad: true },
-  { icon: Globe, label: 'Availability', bank: 'Business Hours Only 🕐', autoupi: '24/7/365 🌍', bankBad: true },
-  { icon: MessageSquare, label: 'Support Response', bank: '24-48 Hours', autoupi: 'Instant Chat', bankBad: true },
+// ──────────────────────────────────────────────
+// Constants & Data
+// ──────────────────────────────────────────────
+const COUNTRIES = [
+  { name: 'United Arab Emirates', code: 'UAE', currency: 'AED', flag: '🇦🇪', rate: 0.044 },
+  { name: 'United States', code: 'USA', currency: 'USD', flag: '🇺🇸', rate: 0.012 },
+  { name: 'United Kingdom', code: 'UK', currency: 'GBP', flag: '🇬🇧', rate: 0.0095 },
+  { name: 'Singapore', code: 'SGP', currency: 'SGD', flag: '🇸🇬', rate: 0.016 },
+  { name: 'Europe', code: 'EU', currency: 'EUR', flag: '🇪🇺', rate: 0.011 },
 ];
 
-const SAVINGS = [
-  { icon: '⏱️', value: '119 Hours', label: 'Time Saved', sub: 'Per transaction', color: 'bg-blue-50 border-blue-200 text-blue-700' },
-  { icon: '💰', value: '₹1,500', label: 'Money Saved', sub: 'Per transaction', color: 'bg-green-50 border-green-200 text-green-700' },
-  { icon: '📊', value: '₹18,000', label: 'Annual Savings', sub: '12 transactions/year', color: 'bg-yellow-50 border-yellow-200 text-yellow-700' },
-];
+const QUICK_AMOUNTS = [50000, 100000, 500000, 1000000, 2000000];
 
+// ──────────────────────────────────────────────
+// Helpers
+// ──────────────────────────────────────────────
+const formatCurrency = (val: number) => 
+  new Intl.NumberFormat('en-IN', {
+    style: 'currency',
+    currency: 'INR',
+    maximumFractionDigits: 0
+  }).format(val);
+
+const formatNum = (val: number) => 
+  new Intl.NumberFormat('en-IN').format(val);
+
+// ──────────────────────────────────────────────
+// Main Component
+// ──────────────────────────────────────────────
 export default function ComparePage() {
   const router = useRouter();
 
+  // ── State ──
+  const [amount, setAmount] = useState(100000);
+  const [swiftFeePercent, setSwiftFeePercent] = useState(8);
+  const [frequency, setFrequency] = useState(12);
+  const [selectedCountry, setSelectedCountry] = useState(COUNTRIES[0]);
+  const [isCountryOpen, setIsCountryOpen] = useState(false);
+
+  // ── Calculations ──
+  const calcs = useMemo(() => {
+    const swiftFee = (amount * swiftFeePercent) / 100;
+    const swiftHidden = amount > 500000 ? 2500 : 1200;
+    const swiftTotal = swiftFee + swiftHidden;
+
+    const autoupiFee = amount * 0.02; // Fixed 2%
+    const autoupiHidden = 0;
+    const autoupiTotal = autoupiFee + autoupiHidden;
+
+    const savings = swiftTotal - autoupiTotal;
+    const annualSavings = savings * frequency;
+    const timeRatio = 8640; // 5 days (432,000s) / 50s (avg) = 8640x
+
+    return {
+      swiftFee, swiftHidden, swiftTotal,
+      autoupiFee, autoupiHidden, autoupiTotal,
+      savings, annualSavings, timeRatio
+    };
+  }, [amount, swiftFeePercent, frequency]);
+
+  // ── Handlers ──
+  const handleCopy = () => {
+    navigator.clipboard.writeText(`I'm saving ${formatCurrency(calcs.savings)} on every international transfer with AutoUPI! Check it out.`);
+    toast.success('Savings details copied to clipboard! 🚀', {
+      style: { background: '#0f172a', color: '#fff', border: '1px solid #1e293b' }
+    });
+  };
+
+  // ── Chart Data ──
+  const barData = [
+    { name: 'Traditional Bank', cost: calcs.swiftTotal, color: '#ef4444' },
+    { name: 'AutoUPI', cost: calcs.autoupiTotal, color: '#10b981' },
+  ];
+
+  const pieData = [
+    { name: 'AutoUPI Fee', value: calcs.autoupiFee, fill: '#6366f1' },
+    { name: 'Platform Savings', value: calcs.savings, fill: '#10b981' },
+  ];
+
   return (
-    <div className="min-h-screen bg-surface-2">
-      {/* Nav */}
-      <nav className="bg-white border-b border-surface-4/60 sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-          <button onClick={() => router.push('/send')} className="flex items-center gap-2">
-            <BrandLogo size={32} textClassName="font-bold text-slate-800" />
+    <div className="min-h-screen bg-slate-950 text-slate-200 selection:bg-primary-500/30">
+      {/* Navbar */}
+      <nav className="fixed top-0 w-full z-50 bg-slate-950/80 backdrop-blur-xl border-b border-white/5">
+        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+          <button onClick={() => router.push('/send')} className="flex items-center gap-3 active:scale-95 transition-transform">
+            <BrandLogo size={36} />
+            <span className="text-white font-bold text-xl tracking-tight hidden sm:block">AutoPay <span className="text-primary-400">2.0</span></span>
           </button>
-          <button onClick={() => router.push('/send')} className="btn-primary text-sm py-2.5">
-            Send Money Now <ArrowRight className="w-4 h-4" />
-          </button>
+          <div className="flex items-center gap-4">
+            <button onClick={() => router.push('/dashboard')} className="text-slate-400 hover:text-white text-sm font-medium transition-colors px-2">Dashboard</button>
+            <button onClick={() => router.push('/tracking')} className="text-primary-400 hover:text-primary-300 text-sm font-bold transition-colors px-2 flex items-center gap-1.5">
+              <Bell className="w-4 h-4" /> Alerts
+            </button>
+            <button onClick={() => router.push('/compliance')} className="text-slate-400 hover:text-white text-sm font-medium transition-colors px-2">Compliance</button>
+            <button onClick={() => router.push('/send')} className="btn-primary py-2.5 px-6 text-sm">
+              Send Now
+            </button>
+          </div>
         </div>
       </nav>
 
-      <div className="max-w-5xl mx-auto px-4 py-16">
-        {/* Header */}
-        <motion.div className="text-center mb-14" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-          <div className="inline-flex items-center gap-2 bg-primary-50 text-primary-600 text-xs font-semibold px-4 py-1.5 rounded-full mb-4 border border-primary-100">
-            <Zap className="w-3 h-3" /> Why AutoUPI Wins
+      <main className="pt-32 pb-24 px-6 max-w-6xl mx-auto">
+        {/* Hero Section */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center mb-16"
+        >
+          <div className="inline-flex items-center gap-2 bg-primary-500/10 text-primary-400 text-xs font-bold px-4 py-1.5 rounded-full mb-6 border border-primary-500/20">
+            <TrendingUp className="w-3.5 h-3.5" /> RE-ENGINEERING GLOBAL PAYMENTS
           </div>
-          <h1 className="text-4xl lg:text-5xl font-bold text-slate-900 mb-4 text-balance">
-            Traditional Banks vs{' '}
-            <span className="gradient-text">AutoUPI</span>
+          <h1 className="text-5xl lg:text-7xl font-bold text-white mb-6 tracking-tight leading-[1.1]">
+            Stop Paying <span className="text-danger-500 line-through decoration-4 underline-offset-8">Hidden Fees</span> <br />
+            Save Up To <span className="gradient-text">91% On Costs</span>
           </h1>
-          <p className="text-slate-500 text-lg max-w-xl mx-auto">
-            See exactly why 50,000+ customers switched to faster, cheaper, transparent international payments.
+          <p className="text-slate-400 text-lg max-w-2xl mx-auto leading-relaxed">
+            Traditional banks swallow billions in hidden spreads and SWIFT overhead. 
+            AutoUPI routes your funds through GIFT City for institutional rates.
           </p>
         </motion.div>
 
-        {/* Comparison cards */}
-        <div className="grid lg:grid-cols-2 gap-6 mb-12">
-          {/* Traditional Bank */}
-          <motion.div
-            className="bg-white rounded-2xl border-2 border-slate-200 overflow-hidden opacity-80"
-            initial={{ opacity: 0, x: -30 }}
-            animate={{ opacity: 0.85, x: 0 }}
-            transition={{ delay: 0.1 }}
-          >
-            <div className="bg-slate-100 border-b border-slate-200 p-5">
-              <div className="flex items-center gap-3">
-                <div className="text-3xl">🏦</div>
-                <div>
-                  <div className="font-bold text-slate-700">Traditional Bank Transfer</div>
-                  <div className="text-xs text-slate-500">SWIFT / Wire Transfer</div>
+        {/* Calculator Controls */}
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.2 }}
+          className="bg-slate-900/50 border border-white/10 rounded-3xl p-8 mb-12 backdrop-blur-sm relative overflow-hidden"
+        >
+          {/* Subtle glow background */}
+          <div className="absolute top-0 right-0 w-64 h-64 bg-primary-500/5 blur-[100px] rounded-full -mr-32 -mt-32" />
+          
+          <div className="grid lg:grid-cols-3 gap-10 relative z-10">
+            {/* Amount Field */}
+            <div className="lg:col-span-2">
+              <label className="block text-slate-400 text-sm font-bold uppercase tracking-wider mb-4">Transfer Amount (INR)</label>
+              <div className="relative group">
+                <div className="absolute left-6 top-1/2 -translate-y-1/2 text-3xl font-bold text-slate-500 group-focus-within:text-primary-400 transition-colors italic">₹</div>
+                <input 
+                  type="number"
+                  value={amount}
+                  onChange={(e) => setAmount(Number(e.target.value))}
+                  className="w-full bg-slate-950 border-2 border-white/5 rounded-2xl py-6 pl-14 pr-6 text-4xl font-mono font-bold text-white outline-none focus:border-primary-500/50 focus:ring-4 focus:ring-primary-500/10 transition-all shadow-inner"
+                />
+              </div>
+              <div className="flex flex-wrap gap-2 mt-4">
+                {QUICK_AMOUNTS.map(val => (
+                  <button 
+                    key={val}
+                    onClick={() => setAmount(val)}
+                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+                      amount === val ? 'bg-primary-500 text-white shadow-glow' : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'
+                    }`}
+                  >
+                    {val >= 100000 ? `${val/100000} Lakh` : `${val/1000}K`}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Config Fields */}
+            <div className="space-y-6">
+              <div>
+                <label className="block text-slate-400 text-sm font-bold uppercase tracking-wider mb-3">Sending To</label>
+                <div className="relative">
+                  <button 
+                    onClick={() => setIsCountryOpen(!isCountryOpen)}
+                    className="w-full bg-slate-950 border border-white/10 rounded-2xl p-4 flex items-center justify-between hover:border-white/20 transition-all text-white font-bold"
+                  >
+                    <span className="flex items-center gap-3">
+                      <span className="text-xl">{selectedCountry.flag}</span>
+                      {selectedCountry.name}
+                    </span>
+                    <ChevronDown className={`w-4 h-4 text-slate-500 transition-transform ${isCountryOpen ? 'rotate-180' : ''}`} />
+                  </button>
+                  <AnimatePresence>
+                    {isCountryOpen && (
+                      <motion.div 
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 10 }}
+                        className="absolute top-full left-0 w-full mt-2 bg-slate-900 border border-white/10 rounded-2xl shadow-2xl z-[60] overflow-hidden"
+                      >
+                        {COUNTRIES.map(c => (
+                          <button 
+                            key={c.code}
+                            onClick={() => { setSelectedCountry(c); setIsCountryOpen(false); }}
+                            className="w-full px-5 py-4 text-left hover:bg-white/5 flex items-center gap-4 transition-colors group border-b border-white/5 last:border-0"
+                          >
+                            <span className="text-2xl">{c.flag}</span>
+                            <div className="flex-1">
+                              <div className="text-white font-bold text-sm tracking-tight">{c.name}</div>
+                              <div className="text-slate-500 text-xs uppercase">{c.currency} ·Institutional Node</div>
+                            </div>
+                            {selectedCountry.code === c.code && <CheckCircle className="w-4 h-4 text-primary-400" />}
+                          </button>
+                        ))}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </div>
+
+              <div>
+                <div className="flex justify-between items-center mb-3">
+                  <label className="text-slate-400 text-sm font-bold uppercase tracking-wider">Bank Fee Spread</label>
+                  <span className="text-danger-400 font-mono font-bold text-sm">{swiftFeePercent}%</span>
+                </div>
+                <input 
+                  type="range" min="3" max="15" step="0.5"
+                  value={swiftFeePercent}
+                  onChange={(e) => setSwiftFeePercent(Number(e.target.value))}
+                  className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-danger-500"
+                />
+                <div className="flex justify-between mt-2 text-[10px] text-slate-600 font-bold uppercase tracking-widest">
+                  <span>Honest</span>
+                  <span>Predatory</span>
                 </div>
               </div>
             </div>
-            <div className="divide-y divide-slate-100">
-              {ROWS.map(row => (
-                <div key={row.label} className="flex items-center justify-between px-5 py-4">
-                  <div className="flex items-center gap-2 text-sm text-slate-500">
-                    <row.icon className="w-4 h-4" />
-                    {row.label}
-                  </div>
-                  <span className="text-sm font-medium text-danger-500">{row.bank}</span>
+          </div>
+        </motion.div>
+
+        {/* SAVINGS BADGE */}
+        <motion.div 
+          className="mb-12 text-center"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          key={calcs.savings}
+        >
+          <div className="inline-block relative">
+            <motion.div 
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              className="bg-success-500 text-white text-4xl lg:text-6xl font-black px-10 py-6 rounded-[2rem] shadow-[0_0_60px_-15px_rgba(16,185,129,0.5)] flex items-center gap-4"
+            >
+              <TrendingUp className="w-10 h-10" />
+              <span>Save {formatCurrency(calcs.savings)}</span>
+            </motion.div>
+            <div className="text-slate-400 font-bold mt-4 tracking-widest uppercase text-sm">per local transaction</div>
+          </div>
+        </motion.div>
+
+        {/* Side-by-Side Cards */}
+        <div className="grid lg:grid-cols-2 gap-8 mb-20">
+          {/* Traditional Card */}
+          <motion.div 
+            initial={{ opacity: 0, x: -30 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="bg-slate-900 border-2 border-white/5 rounded-3xl overflow-hidden group hover:border-danger-500/20 transition-all duration-500"
+          >
+            <div className="p-8 border-b border-white/5 bg-slate-800/20">
+              <div className="flex items-center gap-4 mb-2">
+                <div className="w-12 h-12 rounded-2xl bg-danger-500/10 flex items-center justify-center">
+                  <Landmark className="w-6 h-6 text-danger-400" />
                 </div>
-              ))}
+                <div>
+                  <h3 className="text-xl font-bold text-white tracking-tight">Legacy SWIFT Banking</h3>
+                  <p className="text-slate-500 text-sm">International Wire Transfer</p>
+                </div>
+              </div>
             </div>
-            <div className="bg-danger-50 border-t border-danger-100 p-4 text-center">
-              <span className="text-sm font-bold text-danger-600">Total Cost: ₹1,550+ | Wait: 72-120 Hours</span>
+            <div className="p-8 space-y-6">
+              <ComparisonRow label="Visual Fees" value={formatCurrency(calcs.swiftFee)} icon={<CreditCard className="w-4 h-4"/>} />
+              <ComparisonRow label="FX Spread (Hidden)" value={formatCurrency(calcs.swiftHidden)} icon={<Eye className="w-4 h-4"/>} sub="Correspondent overhead" />
+              <ComparisonRow label="Total Wait" value="3 – 5 Business Days" icon={<Clock className="w-4 h-4"/>} color="text-danger-400" />
+              <ComparisonRow label="Transparency" value="Zero (Opaque Routing)" icon={<AlertTriangle className="w-4 h-4"/>} color="text-slate-500" />
+              
+              <div className="pt-6 border-t border-white/5">
+                <div className="flex justify-between items-end">
+                  <span className="text-slate-400 font-bold text-sm uppercase">Cost to User</span>
+                  <span className="text-4xl font-black text-danger-500 num">{formatCurrency(calcs.swiftTotal)}</span>
+                </div>
+              </div>
             </div>
           </motion.div>
 
-          {/* AutoUPI */}
-          <motion.div
-            className="bg-white rounded-2xl border-2 border-primary-400 overflow-hidden shadow-glow"
+          {/* AutoUPI Card */}
+          <motion.div 
             initial={{ opacity: 0, x: 30 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.2 }}
-            style={{ transform: 'scale(1.02)' }}
+            className="bg-slate-900 border-2 border-primary-500/30 rounded-3xl overflow-hidden shadow-glow relative hover:scale-[1.02] transition-all duration-500"
           >
-            {/* Winner badge */}
-            <div className="absolute top-3 right-3 z-10">
-              <div className="bg-gradient-to-r from-success-500 to-success-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
-                🏆 99% Better
-              </div>
+            <div className="absolute top-6 right-6 z-20">
+              <span className="bg-primary-500 text-white text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-tighter shadow-lg">91% Cheaper</span>
             </div>
-
-            <div className="bg-gradient-to-r from-primary-600 to-accent-500 p-5 relative overflow-hidden">
-              <div className="relative z-10 flex items-center gap-3">
-                <div className="text-3xl">🚀</div>
+            <div className="p-8 border-b border-white/5 bg-gradient-to-br from-primary-600/20 to-accent-500/20">
+              <div className="flex items-center gap-4 mb-2">
+                <div className="w-12 h-12 rounded-2xl bg-primary-500/20 flex items-center justify-center">
+                  <Rocket className="w-6 h-6 text-primary-400" />
+                </div>
                 <div>
-                  <div className="font-bold text-white">AutoUPI Settlement Layer</div>
-                  <div className="text-xs text-white/70">Powered by UPI + Blockchain</div>
+                  <h3 className="text-xl font-bold text-white tracking-tight">AutoUPI Protocol</h3>
+                  <p className="text-primary-400/80 text-sm font-semibold">Decentralized FX Settlement</p>
                 </div>
               </div>
             </div>
-
-            <div className="divide-y divide-slate-100">
-              {ROWS.map((row, i) => (
-                <motion.div
-                  key={row.label}
-                  className="flex items-center justify-between px-5 py-4"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.3 + i * 0.05 }}
-                >
-                  <div className="flex items-center gap-2 text-sm text-slate-500">
-                    <row.icon className="w-4 h-4" />
-                    {row.label}
-                  </div>
-                  <span className="text-sm font-semibold text-success-600 flex items-center gap-1">
-                    <CheckCircle className="w-3.5 h-3.5" />
-                    {row.autoupi}
-                  </span>
-                </motion.div>
-              ))}
-            </div>
-            <div className="bg-success-50 border-t border-success-100 p-4 text-center">
-              <span className="text-sm font-bold text-success-600">Total Cost: ₹50 | Wait: 8 Seconds</span>
+            <div className="p-8 space-y-6">
+              <ComparisonRow label="Service Fee" value={formatCurrency(calcs.autoupiFee)} icon={<Zap className="w-4 h-4"/>} />
+              <ComparisonRow label="FX Hidden Costs" value="Zero (V-FX Rates)" icon={<Globe className="w-4 h-4"/>} sub="Verified best rate guarantee" />
+              <ComparisonRow label="Total Wait" value="~60 Seconds" icon={<Clock className="w-4 h-4"/>} color="text-success-400" />
+              <ComparisonRow label="Transparency" value="Verified On-Chain" icon={<CheckCircle className="w-4 h-4"/>} color="text-primary-300" />
+              
+              <div className="pt-6 border-t border-white/5">
+                <div className="flex justify-between items-end">
+                  <span className="text-primary-400 font-bold text-sm uppercase">Cost to User</span>
+                  <span className="text-4xl font-black text-success-500 num">{formatCurrency(calcs.autoupiTotal)}</span>
+                </div>
+              </div>
             </div>
           </motion.div>
         </div>
 
-        {/* Savings */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-        >
-          <h2 className="text-2xl font-bold text-slate-800 text-center mb-6">Your Savings with AutoUPI</h2>
-          <div className="grid grid-cols-3 gap-4 mb-12">
-            {SAVINGS.map(s => (
-              <div key={s.label} className={`card border-2 ${s.color} text-center`}>
-                <div className="text-3xl mb-3">{s.icon}</div>
-                <div className="text-2xl font-bold num mb-1">{s.value}</div>
-                <div className="font-semibold text-sm">{s.label}</div>
-                <div className="text-xs opacity-70 mt-0.5">{s.sub}</div>
-              </div>
-            ))}
-          </div>
-        </motion.div>
-
-        {/* Bar comparison */}
-        <motion.div
-          className="card mb-12"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6 }}
-        >
-          <h3 className="font-bold text-slate-800 mb-6">Visual Comparison</h3>
-          {[
-            { label: 'Settlement Speed', bankWidth: 5, autoupiWidth: 100, bankLabel: '3-5 days', autoupiLabel: '8 sec' },
-            { label: 'Fee', bankWidth: 100, autoupiWidth: 10, bankLabel: '3-5%', autoupiLabel: '0.5%' },
-            { label: 'Transparency', bankWidth: 20, autoupiWidth: 100, bankLabel: '20%', autoupiLabel: '100%' },
-          ].map((bar, i) => (
-            <div key={bar.label} className="mb-5">
-              <div className="flex justify-between text-sm font-medium text-slate-600 mb-2">
-                <span>{bar.label}</span>
-              </div>
-              <div className="space-y-1.5">
-                <div className="flex items-center gap-3">
-                  <span className="text-xs text-slate-400 w-16">Bank</span>
-                  <div className="flex-1 bg-surface-3 rounded-full h-3 overflow-hidden">
-                    <motion.div
-                      className="h-full bg-danger-400 rounded-full"
-                      initial={{ width: 0 }}
-                      animate={{ width: `${bar.bankWidth}%` }}
-                      transition={{ delay: 0.7 + i * 0.1, duration: 1, ease: 'easeOut' }}
-                    />
-                  </div>
-                  <span className="text-xs font-mono text-danger-500 w-16 text-right">{bar.bankLabel}</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <span className="text-xs text-slate-400 w-16">AutoUPI</span>
-                  <div className="flex-1 bg-surface-3 rounded-full h-3 overflow-hidden">
-                    <motion.div
-                      className="h-full bg-gradient-to-r from-primary-500 to-accent-500 rounded-full"
-                      initial={{ width: 0 }}
-                      animate={{ width: `${bar.autoupiWidth}%` }}
-                      transition={{ delay: 0.8 + i * 0.1, duration: 1, ease: 'easeOut' }}
-                    />
-                  </div>
-                  <span className="text-xs font-mono text-success-600 w-16 text-right">{bar.autoupiLabel}</span>
-                </div>
+        {/* Charts Section */}
+        <div className="grid lg:grid-cols-3 gap-8 mb-20">
+          <div className="lg:col-span-2 bg-slate-900/40 border border-white/5 rounded-3xl p-8">
+            <h3 className="text-xl font-bold text-white mb-8 flex items-center gap-2">
+              <TrendingUp className="w-5 h-5 text-primary-400" /> Cost Comparison Analysis
+            </h3>
+            <div className="h-[300px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={barData} layout="vertical" margin={{ left: 10, right: 30 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" horizontal={false} />
+                  <XAxis type="number" hide />
+                  <YAxis 
+                    dataKey="name" 
+                    type="category" 
+                    hide
+                  />
+                  <Tooltip 
+                    cursor={{fill: '#ffffff05'}}
+                    contentStyle={{ background: '#0f172a', border: '1px solid #1e293b', borderRadius: '12px' }}
+                    formatter={(val: number) => [formatCurrency(val), 'Total Cost']}
+                  />
+                  <Bar dataKey="cost" radius={[0, 8, 8, 0]} barSize={40}>
+                    {barData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+              <div className="mt-4 flex justify-between px-2">
+                {barData.map(d => (
+                   <div key={d.name} className="flex items-center gap-2">
+                     <div className="w-3 h-3 rounded-full" style={{ background: d.color }} />
+                     <span className="text-xs font-bold text-slate-400 uppercase tracking-tighter">{d.name}</span>
+                   </div>
+                ))}
               </div>
             </div>
-          ))}
-        </motion.div>
+          </div>
 
-        {/* CTA */}
-        <motion.div
-          className="text-center"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.8 }}
-        >
-          <button
-            onClick={() => router.push('/send')}
-            className="btn-primary text-base px-10 py-4 shadow-glow"
-          >
-            Start Saving Now <ArrowRight className="w-5 h-5" />
-          </button>
-          <p className="text-slate-400 text-sm mt-3">No registration fee • Instant setup • Demo mode available</p>
-        </motion.div>
+          <div className="bg-slate-900/40 border border-white/5 rounded-3xl p-8 flex flex-col items-center">
+            <h3 className="text-xl font-bold text-white mb-4 text-center">Fee Breakdown</h3>
+            <div className="h-[250px] w-full relative">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={pieData}
+                    cx="50%" cy="50%"
+                    innerRadius={60}
+                    outerRadius={80}
+                    paddingAngle={8}
+                    dataKey="value"
+                  >
+                    {pieData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.fill} />
+                    ))}
+                  </Pie>
+                  <Tooltip 
+                    contentStyle={{ background: '#0f172a', border: '1px solid #1e293b', borderRadius: '12px' }}
+                    formatter={(val: number) => [formatCurrency(val), 'Value']}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+              <div className="absolute inset-0 flex items-center justify-center flex-col pt-4 pointer-events-none">
+                <span className="text-success-400 text-3xl font-black">{Math.round((calcs.savings / calcs.swiftTotal) * 100)}%</span>
+                <span className="text-slate-500 text-[10px] uppercase font-black">Efficiency</span>
+              </div>
+            </div>
+            <div className="mt-4 space-y-2 w-full">
+              {pieData.map(d => (
+                <div key={d.name} className="flex items-center justify-between bg-slate-800/50 p-3 rounded-xl">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full" style={{ background: d.fill }} />
+                    <span className="text-xs font-bold text-slate-300">{d.name}</span>
+                  </div>
+                  <span className="text-xs font-mono text-white">{formatCurrency(d.value)}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Speed Comparison */}
+        <div className="mb-20">
+          <TimelineComparison />
+        </div>
+
+        {/* Annual Calculator */}
+        <div className="bg-gradient-to-br from-slate-900 to-indigo-900/20 border-2 border-primary-500/20 rounded-[3rem] p-12 text-center relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none" style={{ backgroundImage: 'radial-gradient(#ffffff 1px, transparent 1px)', backgroundSize: '30px 30px' }} />
+          
+          <h2 className="text-3xl font-black text-white mb-4 relative z-10">Power User Annual Projections</h2>
+          <p className="text-slate-400 mb-10 relative z-10 max-w-xl mx-auto">See how small savings on every transfer turn into a significant capital boost for your business or family over a year.</p>
+
+          <div className="max-w-md mx-auto mb-10 relative z-10">
+            <div className="flex justify-between items-center mb-4">
+              <span className="text-slate-400 text-sm font-black uppercase tracking-widest">Monthly Frequency</span>
+              <span className="bg-white/10 text-white px-4 py-1 rounded-lg font-mono font-bold">{frequency} txns/mo</span>
+            </div>
+            <input 
+              type="range" min="1" max="50"
+              value={frequency}
+              onChange={(e) => setFrequency(Number(e.target.value))}
+              className="w-full h-3 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-primary-500"
+            />
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-6 relative z-10">
+            <div className="bg-slate-950/50 p-8 rounded-3xl border border-white/5">
+              <div className="text-slate-500 text-xs font-black uppercase tracking-widest mb-2">Annual Capital Retained</div>
+              <div className="text-5xl font-black text-success-500 num">{formatCurrency(calcs.annualSavings)}</div>
+            </div>
+            <div className="bg-slate-950/50 p-8 rounded-3xl border border-white/5">
+              <div className="text-slate-500 text-xs font-black uppercase tracking-widest mb-2">Effective Annual yield boost</div>
+              <div className="text-5xl font-black text-primary-400 num">~{( (calcs.annualSavings / (amount * frequency)) * 100).toFixed(1)}%</div>
+            </div>
+          </div>
+
+          <div className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-4 relative z-10">
+            <button 
+              onClick={handleCopy}
+              className="btn-secondary py-4 px-8 flex items-center gap-3 w-full sm:w-auto justify-center"
+            >
+              <Share2 className="w-5 h-5" /> Share My Savings
+            </button>
+            <button 
+              onClick={() => router.push('/send')}
+              className="btn-primary py-4 px-10 shadow-glow w-full sm:w-auto justify-center flex items-center gap-3"
+            >
+              Start Saving Now <ArrowRight className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+      </main>
+
+      {/* Footer */}
+      <footer className="py-12 px-6 border-t border-white/5 text-center bg-slate-950">
+        <BrandLogo size={24} className="mx-auto grayscale opacity-50 mb-4" />
+        <p className="text-slate-600 text-xs font-bold uppercase tracking-[0.2em] mb-2">AutoUPI Protocol v2.4.0</p>
+        <p className="text-slate-800 text-[10px] max-w-lg mx-auto leading-relaxed">
+          * Calculation based on standard SWIFT correspondent banking fees (3-12%) and correspondent spread (₹500-₹4500). 
+          AutoPay uses institutional L2 liquidity nodes for 2% flat pricing.
+        </p>
+      </footer>
+    </div>
+  );
+}
+
+// ──────────────────────────────────────────────
+// Helper Component: Comparison Row
+// ──────────────────────────────────────────────
+function ComparisonRow({ label, value, icon, sub, color = 'text-white' }: { label: string, value: string, icon: React.ReactNode, sub?: string, color?: string }) {
+  return (
+    <div className="flex justify-between items-start">
+      <div className="flex items-start gap-3">
+        <div className="mt-1 text-slate-500 group-hover:text-primary-400 transition-colors">{icon}</div>
+        <div>
+          <div className="text-xs font-black text-slate-500 uppercase tracking-widest">{label}</div>
+          {sub && <div className="text-[10px] text-slate-600 font-bold">{sub}</div>}
+        </div>
       </div>
+      <div className={`text-sm font-bold text-right ${color}`}>{value}</div>
     </div>
   );
 }

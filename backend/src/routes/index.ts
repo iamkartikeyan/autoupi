@@ -14,6 +14,8 @@ router.get('/health', (req, res) => {
 // Auth routes
 router.post('/auth/request-otp', authController.requestOTP);
 router.post('/auth/verify-otp', authController.verifyOTP);
+router.post('/auth/login', authController.loginPassword);
+router.post('/auth/register', authController.registerPassword);
 router.get('/auth/me', authMiddleware, authController.getMe);
 
 // Transaction routes (protected)

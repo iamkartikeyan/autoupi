@@ -33,3 +33,26 @@ export async function getMe(req: Request, res: Response) {
     res.status(500).json({ success: false, error: err.message, timestamp: new Date().toISOString() });
   }
 }
+
+export async function loginPassword(req: Request, res: Response) {
+  try {
+    const { phone, password } = req.body;
+    if (!phone || !password) return res.status(400).json({ success: false, error: 'Phone and password required', timestamp: new Date().toISOString() });
+    const result = await authService.loginWithPassword(phone, password);
+    res.json({ success: true, data: result, timestamp: new Date().toISOString() });
+  } catch (err: any) {
+    res.status(401).json({ success: false, error: err.message, timestamp: new Date().toISOString() });
+  }
+}
+
+export async function registerPassword(req: Request, res: Response) {
+  try {
+    const { phone, email, fullName, password } = req.body;
+    if (!phone || !password || !fullName) return res.status(400).json({ success: false, error: 'Phone, full name, and password required', timestamp: new Date().toISOString() });
+    if (password.length < 6) return res.status(400).json({ success: false, error: 'Password must be at least 6 characters', timestamp: new Date().toISOString() });
+    const result = await authService.registerWithPassword(phone, email || '', fullName, password);
+    res.json({ success: true, data: result, timestamp: new Date().toISOString() });
+  } catch (err: any) {
+    res.status(400).json({ success: false, error: err.message, timestamp: new Date().toISOString() });
+  }
+}

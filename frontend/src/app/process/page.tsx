@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { io, Socket } from 'socket.io-client';
 import { CheckCircle, Circle, Loader2, Shield, Lock, Database, Rocket, Bell } from 'lucide-react';
 import BrandLogo from '@/components/ui/BrandLogo';
+import TokenVisualization from '@/components/features/TokenVisualization';
 
 const STEP_ICONS: Record<string, React.ElementType> = {
   kyc: Shield, aml: Shield, rate_lock: Lock,
@@ -117,6 +118,10 @@ function ProcessPageInner() {
           <span className="text-slate-600 text-sm">/ Settlement Processing</span>
         </div>
         <div className="flex items-center gap-3">
+          <button onClick={() => router.push('/tracking')} className="text-primary-400 hover:text-primary-300 text-xs font-bold transition-colors px-3 flex items-center gap-1.5">
+            <Bell className="w-3.5 h-3.5" /> Alerts
+          </button>
+          <button onClick={() => router.push('/compliance')} className="text-slate-400 hover:text-white text-xs font-medium transition-colors px-3">🛡️ Compliance</button>
           {status === 'processing' && (
             <div className="flex items-center gap-2 bg-primary-500/10 border border-primary-500/30 rounded-full px-3 py-1">
               <div className="live-dot" />
@@ -136,15 +141,27 @@ function ProcessPageInner() {
       </div>
 
       <div className="flex-1 grid lg:grid-cols-2 gap-0 max-w-7xl mx-auto w-full p-6 gap-6">
-        {/* Left: Steps */}
-        <div className="space-y-4">
+        {/* Left: Steps & Visualization */}
+        <div className="space-y-6">
+          {/* Token Lifecycle Visualization */}
+          <TokenVisualization 
+            activeStep={
+              status === 'complete' ? 4 :
+              steps.find(s => s.id === 'notify')?.status === 'processing' ? 4 :
+              steps.find(s => s.id === 'settlement')?.status === 'processing' ? 3 :
+              steps.find(s => s.id === 'liquidity')?.status === 'processing' ? 2 :
+              steps.find(s => s.id === 'rate_lock')?.status === 'processing' ? 1 :
+              0
+            } 
+          />
+
           {/* Timer */}
           <motion.div
-            className="text-center py-8"
+            className="text-center py-4"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
           >
-            <div className="text-6xl font-mono font-bold text-white num mb-2">
+            <div className="text-5xl font-mono font-bold text-white num mb-1">
               {status === 'complete' ? (
                 <span className="gradient-text-success">{elapsedSec}s</span>
               ) : (
@@ -153,18 +170,17 @@ function ProcessPageInner() {
                 </span>
               )}
             </div>
-            <div className="text-slate-400 text-sm">
-              {status === 'complete' ? '🎉 Settlement Complete!' : status === 'failed' ? '❌ Transaction Failed' : 'Processing settlement...'}
+            <div className="text-slate-400 text-xs uppercase font-black tracking-widest">
+              {status === 'complete' ? '🎉 Settlement Complete!' : status === 'failed' ? '❌ Transaction Failed' : 'Real-time Settlement Hub'}
             </div>
-            <div className="text-xs text-slate-600 mt-1 font-mono">{txnId?.slice(0, 8)}...</div>
           </motion.div>
 
           {/* Steps */}
           <div className="card !bg-slate-900/50 !border-white/10 space-y-0 !p-0 overflow-hidden">
-            <div className="px-5 py-4 border-b border-white/5">
+            <div className="px-5 py-4 border-b border-white/5 bg-slate-800/20">
               <div className="flex items-center justify-between">
-                <h3 className="font-semibold text-white text-sm">Settlement Pipeline</h3>
-                <span className="text-xs text-slate-400 num">{completedSteps}/{STEPS_META.length}</span>
+                <h3 className="font-bold text-white text-sm uppercase tracking-wider">Settlement Pipeline</h3>
+                <span className="text-xs text-slate-400 font-mono">{completedSteps}/{STEPS_META.length}</span>
               </div>
             </div>
             {steps.map((step, i) => {
@@ -175,14 +191,14 @@ function ProcessPageInner() {
                     <div className={`absolute left-[2.35rem] top-[3.5rem] w-0.5 h-4 ${step.status === 'done' ? 'bg-success-500' : 'bg-slate-700'} transition-colors duration-500`} />
                   )}
                   <motion.div
-                    className={`flex items-center gap-4 px-5 py-4 transition-colors ${step.status === 'processing' ? 'bg-primary-500/5' : ''}`}
+                    className={`flex items-center gap-4 px-5 py-4 transition-colors ${step.status === 'processing' ? 'bg-primary-500/10' : ''}`}
                     initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: i * 0.05 }}
                   >
                     {/* Icon */}
-                    <div className={`relative w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 transition-all duration-500 ${step.status === 'done' ? 'bg-success-500' :
-                        step.status === 'processing' ? 'bg-primary-500/20 border border-primary-500/50' :
+                    <div className={`relative w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 transition-all duration-500 ${step.status === 'done' ? 'bg-success-500 shadow-[0_0_15px_rgba(34,197,94,0.3)]' :
+                        step.status === 'processing' ? 'bg-primary-500/20 border border-primary-500/50 shadow-glow' :
                           'bg-slate-800 border border-slate-700'
                       }`}>
                       {step.status === 'done' ? (
@@ -198,19 +214,19 @@ function ProcessPageInner() {
                     </div>
 
                     <div className="flex-1 min-w-0">
-                      <div className={`text-sm font-semibold ${step.status === 'done' ? 'text-success-400' : step.status === 'processing' ? 'text-white' : 'text-slate-500'}`}>
+                      <div className={`text-sm font-bold ${step.status === 'done' ? 'text-success-400' : step.status === 'processing' ? 'text-white' : 'text-slate-500'}`}>
                         {step.name}
                       </div>
-                      <div className="text-xs text-slate-600 mt-0.5">
-                        {step.status === 'done' ? 'Completed ✓' : step.status === 'processing' ? 'Processing...' : 'Queued'}
+                      <div className="text-[10px] text-slate-600 mt-0.5 font-bold uppercase tracking-tighter">
+                        {step.status === 'done' ? 'Verified ✓' : step.status === 'processing' ? 'Active...' : 'Queueing'}
                       </div>
                     </div>
 
-                    <div className={`text-xs font-mono px-2 py-0.5 rounded-full ${step.status === 'done' ? 'bg-success-500/20 text-success-400' :
+                    <div className={`text-[10px] font-black px-2.5 py-1 rounded-lg ${step.status === 'done' ? 'bg-success-400/20 text-success-400' :
                         step.status === 'processing' ? 'bg-primary-500/20 text-primary-300 animate-pulse' :
                           'bg-slate-800 text-slate-600'
                       }`}>
-                      {step.status === 'done' ? 'DONE' : step.status === 'processing' ? 'ACTIVE' : 'WAIT'}
+                      {step.status === 'done' ? 'PASSED' : step.status === 'processing' ? 'READY' : 'STBY'}
                     </div>
                   </motion.div>
                 </div>
@@ -221,52 +237,52 @@ function ProcessPageInner() {
           {/* Metrics */}
           <div className="grid grid-cols-3 gap-3">
             {[
-              { label: 'Network Nodes', value: `${Math.min(completedSteps * 2, 12)}/12` },
-              { label: 'Confirmations', value: `${Math.min(completedSteps, 3)}/3` },
-              { label: 'Pool Status', value: '87%' },
+              { label: 'Nodes engaged', value: `${Math.min(completedSteps * 2, 12)}/12` },
+              { label: 'Audit Proofs', value: `${Math.min(completedSteps, 6)}/6` },
+              { label: 'Net Efficiency', value: '99.8%' },
             ].map(m => (
               <div key={m.label} className="card !bg-slate-900/50 !border-white/10 !py-3 !px-4 text-center">
-                <div className="text-lg font-bold text-white num">{m.value}</div>
-                <div className="text-xs text-slate-500 mt-0.5">{m.label}</div>
+                <div className="text-lg font-black text-white num">{m.value}</div>
+                <div className="text-[10px] text-slate-500 mt-0.5 font-bold uppercase tracking-widest">{m.label}</div>
               </div>
             ))}
           </div>
         </div>
 
         {/* Right: Terminal */}
-        <div className="flex flex-col">
-          <div className="card !bg-[#0d1117] !border-[#30363d] !rounded-xl flex-1 flex flex-col !p-0 overflow-hidden">
+        <div className="flex flex-col gap-6">
+          <div className="card !bg-[#05070a] !border-white/10 !rounded-2xl flex-1 flex flex-col !p-0 overflow-hidden shadow-2xl">
             {/* Terminal header */}
-            <div className="flex items-center gap-2 px-4 py-3 bg-[#161b22] border-b border-[#30363d]">
-              <div className="w-3 h-3 rounded-full bg-[#ff5f56]" />
-              <div className="w-3 h-3 rounded-full bg-[#ffbd2e]" />
-              <div className="w-3 h-3 rounded-full bg-[#27c93f]" />
-              <span className="text-[#8b949e] text-xs ml-2 font-mono">autoupi-settlement — zsh</span>
+            <div className="flex items-center gap-2 px-4 py-3 bg-slate-900 border-b border-white/5">
+              <div className="flex gap-1.5">
+                <div className="w-2.5 h-2.5 rounded-full bg-danger-500/50" />
+                <div className="w-2.5 h-2.5 rounded-full bg-amber-500/50" />
+                <div className="w-2.5 h-2.5 rounded-full bg-success-500/50" />
+              </div>
+              <span className="text-slate-500 text-[10px] ml-4 font-mono font-bold uppercase tracking-widest">autoupi-settlement-core — 1.2.0</span>
             </div>
 
             {/* Logs */}
-            <div className="flex-1 p-4 font-mono text-xs overflow-y-auto terminal-scroll space-y-1 min-h-[400px] max-h-[500px]">
+            <div className="flex-1 p-5 font-mono text-[11px] overflow-y-auto terminal-scroll space-y-1.5 min-h-[450px] max-h-[600px] bg-black/40">
               <AnimatePresence>
                 {logs.map((log, i) => (
                   <motion.div
                     key={i}
-                    initial={{ opacity: 0, y: 5 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.2 }}
+                    initial={{ opacity: 0, x: -5 }}
+                    animate={{ opacity: 1, x: 0 }}
                     className="flex gap-3 leading-relaxed"
                   >
-                    <span className="text-[#6e7681] flex-shrink-0">[{log.timestamp}]</span>
-                    <span className="flex-shrink-0" style={{ color: logColor[log.status] || '#8b949e' }}>
+                    <span className="text-slate-700 flex-shrink-0">[{log.timestamp}]</span>
+                    <span className="flex-shrink-0 font-bold" style={{ color: logColor[log.status] || '#8b949e' }}>
                       [{log.status}]
                     </span>
-                    <span className="text-[#e6edf3] break-all">{log.message}</span>
+                    <span className="text-slate-300 break-all">{log.message}</span>
                   </motion.div>
                 ))}
               </AnimatePresence>
               {status === 'processing' && (
-                <div className="flex gap-1 text-[#27c93f] mt-1">
-                  <span>▶</span>
-                  <span className="cursor-blink" />
+                <div className="flex gap-1 text-success-500 mt-2">
+                  <span className="animate-pulse">_</span>
                 </div>
               )}
               <div ref={logsEndRef} />
@@ -277,13 +293,22 @@ function ProcessPageInner() {
           <AnimatePresence>
             {hash && (
               <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="mt-4 card !bg-success-500/10 !border-success-500/30 !py-3"
+                initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                className="card !bg-success-500/10 !border-success-500/30 !py-4 lg:py-6 shadow-glow-success"
               >
-                <div className="text-xs font-semibold text-success-400 mb-1">Blockchain Hash</div>
-                <div className="text-xs font-mono text-success-300 break-all">{hash.slice(0, 42)}...</div>
-                <div className="text-xs text-success-600 mt-1">✓ Confirmed on-chain • Redirecting...</div>
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-8 h-8 rounded-lg bg-success-500/20 flex items-center justify-center">
+                    <Rocket className="w-4 h-4 text-success-400" />
+                  </div>
+                  <div>
+                    <div className="text-[10px] font-black text-success-500 uppercase tracking-[0.2em]">Settlement Confirmation</div>
+                    <div className="text-xs font-mono text-success-300 break-all mt-0.5">{hash}</div>
+                  </div>
+                </div>
+                <div className="text-[10px] text-success-600 mt-2 flex items-center gap-1.5 px-2">
+                  <CheckCircle className="w-3 h-3" /> VERIFIED ON LAYER-2 SETTLEMENT NETWORK
+                </div>
               </motion.div>
             )}
           </AnimatePresence>

@@ -6,6 +6,7 @@ interface BrandLogoProps {
   size?: number;
   showText?: boolean;
   priority?: boolean;
+  grayscale?: boolean;
 }
 
 export default function BrandLogo({
@@ -14,9 +15,10 @@ export default function BrandLogo({
   size = 36,
   showText = true,
   priority = false,
+  grayscale = false,
 }: BrandLogoProps) {
   return (
-    <div className={`flex items-center gap-2.5 ${className}`.trim()}>
+    <div className={`flex items-center gap-2.5 ${className} ${grayscale ? 'grayscale opacity-50' : ''}`.trim()}>
       <Image
         src="/autoupi-logo.jpeg"
         alt="AutoUPI logo"

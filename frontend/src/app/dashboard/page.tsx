@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { ArrowRight, Clock, CheckCircle, XCircle, Loader2, LogOut, TrendingUp, Send } from 'lucide-react';
+import { ArrowRight, Clock, CheckCircle, XCircle, Loader2, LogOut, TrendingUp, Send, Bell, Smartphone } from 'lucide-react';
 import { transactionApi, getStoredUser, clearAuth, isAuthenticated } from '@/lib/api';
 import BrandLogo from '@/components/ui/BrandLogo';
 
@@ -58,6 +58,10 @@ export default function DashboardPage() {
             <BrandLogo size={32} textClassName="font-bold text-slate-800" />
           </button>
           <div className="flex items-center gap-2">
+            <button onClick={() => router.push('/tracking')} className="btn-ghost text-xs flex items-center gap-1.5 text-primary-600 font-bold">
+              <Bell className="w-3 h-3" /> Alerts
+            </button>
+            <button onClick={() => router.push('/compliance')} className="btn-ghost text-xs">🛡️ Compliance</button>
             <button onClick={() => router.push('/send')} className="btn-primary text-xs py-2 px-4">
               <Send className="w-3 h-3" /> Send Money
             </button>
@@ -76,17 +80,27 @@ export default function DashboardPage() {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
           {[
             { label: 'Wallet Balance', value: `₹${(user?.wallet_balance || 0).toLocaleString('en-IN')}`, icon: '💰', color: 'text-primary-600' },
             { label: 'Total Sent', value: `₹${totalVolume.toLocaleString('en-IN')}`, icon: '📤', color: 'text-slate-700' },
             { label: 'Total Saved', value: `₹${totalSaved.toLocaleString('en-IN')}`, icon: '🎯', color: 'text-success-600' },
             { label: 'Avg Speed', value: `${avgTime}s`, icon: '⚡', color: 'text-accent-500' },
+            { label: 'Live Alerts', value: 'Active', icon: '📱', color: 'text-primary-600', link: '/tracking' },
           ].map(s => (
-            <motion.div key={s.label} className="card" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-              <div className="text-2xl mb-2">{s.icon}</div>
+            <motion.div 
+              key={s.label} 
+              className={`card cursor-pointer group hover:border-primary-500/50 transition-all ${s.link ? 'bg-primary-50' : 'bg-white'}`} 
+              initial={{ opacity: 0, y: 10 }} 
+              animate={{ opacity: 1, y: 0 }}
+              onClick={() => s.link && router.push(s.link)}
+            >
+              <div className="text-2xl mb-2 flex justify-between items-start">
+                <span>{s.icon}</span>
+                {s.link && <ArrowRight className="w-3 h-3 text-primary-400 group-hover:translate-x-1 transition-transform" />}
+              </div>
               <div className={`text-xl font-bold num ${s.color}`}>{s.value}</div>
-              <div className="text-xs text-slate-400 mt-0.5">{s.label}</div>
+              <div className="text-xs text-slate-400 mt-0.5 font-medium">{s.label}</div>
             </motion.div>
           ))}
         </div>

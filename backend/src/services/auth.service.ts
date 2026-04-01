@@ -121,3 +121,70 @@ export async function getUserById(id: string) {
   if (error) throw error;
   return data;
 }
+
+// ─── Password-based Auth ─────────────────────────────────────────────────────
+
+export async function registerWithPassword(
+  phone: string,
+  email: string,
+  fullName: string,
+  password: string
+) {
+  // Check if user already exists
+  const { data: existing } = await supabase
+    .from('users')
+    .select('id')
+    .eq('phone', phone)
+    .single();
+
+  if (existing) throw new Error('An account with this phone number already exists. Please sign in.');
+
+  const passwordHash = await bcrypt.hash(password, 10);
+
+  const { data: newUser, error } = await supabase
+    .from('users')
+    .insert({
+      id: uuidv4(),
+      phone,
+      email: email || `${phone.replace('+', '')}@autoupi.demo`,
+      full_name: fullName,
+      role: 'USER',
+      kyc_status: 'VERIFIED',
+      wallet_balance: 50000,
+      password_hash: passwordHash,
+    })
+    .select()
+    .single();
+
+  if (error) throw new Error('Failed to create account. Please try again.');
+
+  const token = jwt.sign(
+    { id: newUser.id, email: newUser.email, role: newUser.role },
+    process.env.JWT_SECRET!,
+    { expiresIn: (process.env.JWT_EXPIRY || '7d') as any }
+  );
+
+  return { token, user: newUser };
+}
+
+export async function loginWithPassword(phone: string, password: string) {
+  const { data: user, error } = await supabase
+    .from('users')
+    .select('*')
+    .eq('phone', phone)
+    .single();
+
+  if (error || !user) throw new Error('No account found with this phone number.');
+  if (!user.password_hash) throw new Error('This account uses OTP login. Please use OTP instead.');
+
+  const isValid = await bcrypt.compare(password, user.password_hash);
+  if (!isValid) throw new Error('Incorrect password. Please try again.');
+
+  const token = jwt.sign(
+    { id: user.id, email: user.email, role: user.role },
+    process.env.JWT_SECRET!,
+    { expiresIn: (process.env.JWT_EXPIRY || '7d') as any }
+  );
+
+  return { token, user };
+}

@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
-import { ArrowRight, ArrowLeftRight, Shield, Globe, CheckCircle, TrendingUp, Clock, Star, LogOut, Zap } from 'lucide-react';
+import { ArrowRight, ArrowLeftRight, Shield, Globe, CheckCircle, TrendingUp, Clock, Star, LogOut, Zap, Bell } from 'lucide-react';
 import { transactionApi, getStoredUser, clearAuth, isAuthenticated } from '@/lib/api';
 import BrandLogo from '@/components/ui/BrandLogo';
 
@@ -126,6 +126,11 @@ export default function SendPage() {
 
           <div className="flex items-center gap-2">
             <button onClick={() => router.push('/dashboard')} className="btn-ghost text-xs">History</button>
+            <button onClick={() => router.push('/tracking')} className="btn-ghost text-xs flex items-center gap-1.5 text-primary-600 font-bold">
+              <Bell className="w-3 h-3" /> Alerts
+            </button>
+            <button onClick={() => router.push('/track')} className="btn-ghost text-xs">🗺️ Track</button>
+            <button onClick={() => router.push('/compliance')} className="btn-ghost text-xs">🛡️ Compliance</button>
             {user?.role === 'ADMIN' && (
               <button onClick={() => router.push('/admin')} className="btn-ghost text-xs">Admin</button>
             )}
@@ -154,7 +159,7 @@ export default function SendPage() {
                 <br />in 8 Seconds
               </h1>
               <p className="text-slate-500 text-lg leading-relaxed">
-                Traditional banks take 3-5 days and charge 3-5%. We do it in 8 seconds for just 0.5%.
+                Traditional banks take 3-5 days and charge 3-5%. We do it in 8 seconds for just 1%.
               </p>
             </motion.div>
 
