@@ -143,12 +143,12 @@ export default function Navbar() {
                           <span>Dashboard</span>
                         </Link>
                         <Link
-                          href="/wallet"
+                          href="/settings"
                           onClick={() => setUserDropdownOpen(false)}
                           className="flex items-center gap-2.5 px-4 py-2 text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/[0.05]"
                         >
-                          <Wallet className="w-4 h-4 text-slate-400" />
-                          <span>My Wallet</span>
+                          <User className="w-4 h-4 text-slate-400" />
+                          <span>Settings & Profile</span>
                         </Link>
                         {user.role === 'ADMIN' && (
                           <Link
