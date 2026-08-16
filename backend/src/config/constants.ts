@@ -1,4 +1,4 @@
-export const TRANSACTION_FEE_PERCENT = 0.01; // 1%
+export const TRANSACTION_FEE_PERCENT = 0.02; // 2%
 export const MIN_AMOUNT = 100;
 export const MAX_AMOUNT = 1000000;
 

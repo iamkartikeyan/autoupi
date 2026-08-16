@@ -34,7 +34,8 @@ const POOL_FLAGS: Record<string, string> = { INR: '🇮🇳', AED: '🇦🇪', U
 
 export default function AdminPage() {
   const router = useRouter();
-  const user = getStoredUser();
+  const [mounted, setMounted] = useState(false);
+  const user = mounted ? getStoredUser() : null;
   const [activeTab, setActiveTab] = useState('overview');
   const [stats, setStats] = useState<Stats | null>(null);
   const [pools, setPools] = useState<Pool[]>([]);
@@ -44,8 +45,10 @@ export default function AdminPage() {
   const [rebalancing, setRebalancing] = useState('');
 
   useEffect(() => {
+    setMounted(true);
     if (!isAuthenticated()) { router.push('/login'); return; }
-    if (user?.role !== 'ADMIN') { router.push('/send'); return; }
+    const currentUser = getStoredUser();
+    if (currentUser?.role !== 'ADMIN') { router.push('/send'); return; }
     loadData();
   }, []);
 

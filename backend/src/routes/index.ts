@@ -3,6 +3,7 @@ import * as authController from '../controllers/auth.controller';
 import * as transactionController from '../controllers/transaction.controller';
 import * as adminController from '../controllers/admin.controller';
 import { authMiddleware, adminMiddleware } from '../middleware/auth.middleware';
+import blockchainRoutes from './blockchain.routes';
 
 const router = Router();
 
@@ -10,6 +11,9 @@ const router = Router();
 router.get('/health', (req, res) => {
   res.json({ status: 'OK', uptime: process.uptime(), timestamp: new Date().toISOString() });
 });
+
+// Blockchain routes
+router.use('/blockchain', blockchainRoutes);
 
 // Auth routes
 router.post('/auth/request-otp', authController.requestOTP);

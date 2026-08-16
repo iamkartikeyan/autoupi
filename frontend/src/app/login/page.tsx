@@ -181,7 +181,7 @@ export default function LoginPage() {
               </span>
             </h1>
             <p className="text-slate-300 text-lg leading-relaxed mb-10">
-              Send money internationally with UPI-level speed. 1% fees. Real-time tracking. Bank-grade security.
+              Send money internationally with UPI-level speed. 2% fees. Real-time tracking. Bank-grade security.
             </p>
             <div className="space-y-4">
               {FEATURES.map((f, i) => (
@@ -199,7 +199,7 @@ export default function LoginPage() {
         <div className="relative z-10 grid grid-cols-3 gap-4">
           {[
             { value: '8s', label: 'Settlement' },
-            { value: '1%', label: 'Fees' },
+            { value: '2%', label: 'Fees' },
             { value: '99.7%', label: 'Success rate' },
           ].map((s) => (
             <div key={s.label} className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/10">

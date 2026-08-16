@@ -101,7 +101,7 @@ function SuccessPageInner() {
               {[
                 { label: 'Original Amount', value: `₹${amount.toLocaleString('en-IN')}`, bold: true },
                 { label: 'Exchange Rate', value: `1 ${fromCurrency} = ${rate} ${toCurrency}`, mono: true },
-                { label: 'Total Fees', value: `₹${fee} (1%)`, muted: true },
+                { label: 'Total Fees', value: `₹${fee} (2%)`, muted: true },
                 { label: 'Processing Speed', value: `⚡ ${settlementTime}s`, green: true },
               ].map((row, i) => (
                 <div key={i} className={`flex justify-between py-4 ${i < 3 ? 'border-b border-surface-4' : ''}`}>

@@ -3,6 +3,7 @@ import { Server as SocketServer } from 'socket.io';
 import app from './app';
 import { testConnection } from './config/supabase';
 import { setSocketServer } from './services/settlement.service';
+import { initializeBlockchain } from './services/blockchain.service';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -13,8 +14,19 @@ async function start() {
   // Test DB connection
   const connected = await testConnection();
   if (!connected) {
-    console.error('❌ Cannot start server without database connection');
-    process.exit(1);
+    if (process.env.DEMO_MODE === 'true') {
+      console.warn('⚠️ Supabase connection failed. Continuing in DEMO MODE with in-memory store.');
+    } else {
+      console.error('❌ Cannot start server without database connection');
+      process.exit(1);
+    }
+  }
+
+  // Initialize blockchain with genesis block
+  try {
+    await initializeBlockchain();
+  } catch (err) {
+    console.warn('⚠️ Blockchain initialization skipped:', err);
   }
 
   const httpServer = http.createServer(app);

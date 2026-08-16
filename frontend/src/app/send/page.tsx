@@ -38,7 +38,8 @@ function formatAmount(val: string) {
 
 export default function SendPage() {
   const router = useRouter();
-  const user = getStoredUser();
+  const [mounted, setMounted] = useState(false);
+  const user = mounted ? getStoredUser() : null;
   const [amount, setAmount] = useState('10,000');
   const [fromCurrency, setFromCurrency] = useState('INR');
   const [toCurrency, setToCurrency] = useState('AED');
@@ -49,6 +50,7 @@ export default function SendPage() {
   const [ticker, setTicker] = useState(0);
 
   useEffect(() => {
+    setMounted(true);
     if (!isAuthenticated()) router.push('/login');
   }, [router]);
 
@@ -159,7 +161,7 @@ export default function SendPage() {
                 <br />in 8 Seconds
               </h1>
               <p className="text-slate-500 text-lg leading-relaxed">
-                Traditional banks take 3-5 days and charge 3-5%. We do it in 8 seconds for just 1%.
+                Traditional banks take 3-5 days and charge 3-5%. We do it in 8 seconds for just 2%.
               </p>
             </motion.div>
 

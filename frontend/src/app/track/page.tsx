@@ -20,12 +20,12 @@ interface StepLog { step: string; status: string; message: string; timestamp: st
 // ──────────────────────────────────────────────
 // Milestone Definitions
 // ──────────────────────────────────────────────
-const MILESTONES = [
+const DEFAULT_MILESTONES = [
   {
     id: 'sender',
     label: '🇮🇳 Sender',
     country: 'Mumbai, India',
-    description: 'Transaction initiated from India',
+    description: 'Transaction initiated',
     lat: 19.076,
     lng: 72.877,
     icon: '🇮🇳',
@@ -34,8 +34,8 @@ const MILESTONES = [
   {
     id: 'bank_lock',
     label: '🏦 Bank Reserve Lock',
-    country: 'RBI Clearing',
-    description: 'Funds locked at Indian Reserve Bank',
+    country: 'Clearing Bank',
+    description: 'Funds locked at source bank',
     lat: 28.6139,
     lng: 77.209,
     icon: '🏦',
@@ -43,7 +43,7 @@ const MILESTONES = [
   },
   {
     id: 'token_mint',
-    label: '🪙 TBD Token Mint',
+    label: '🪙 Token Mint',
     country: 'Blockchain Layer',
     description: 'Digital tokens minted on settlement chain',
     lat: 21.1458,
@@ -53,9 +53,9 @@ const MILESTONES = [
   },
   {
     id: 'gift_city',
-    label: '🌐 GIFT City FX',
-    country: 'GIFT City, Gujarat',
-    description: 'Foreign exchange conversion at GIFT City IFSC',
+    label: '🌐 FX Node',
+    country: 'Conversion Hub',
+    description: 'Foreign exchange conversion at Hub',
     lat: 23.1685,
     lng: 72.6498,
     icon: '🌐',
@@ -83,7 +83,7 @@ const STATUS_COLORS = {
 // Dynamically import LeafletMap (no SSR)
 // ──────────────────────────────────────────────
 interface LeafletMapProps {
-  milestones: typeof MILESTONES;
+  milestones: typeof DEFAULT_MILESTONES;
   milestoneStates: MilestoneStatus[];
   onHover: (id: string | null) => void;
 }
@@ -116,22 +116,25 @@ function TrackPageInner() {
   const [logs, setLogs] = useState<StepLog[]>([]);
   const [hoveredMilestone, setHoveredMilestone] = useState<string | null>(null);
 
+  const [showConfig, setShowConfig] = useState(!txnId);
+  const [activeMilestones, setActiveMilestones] = useState(DEFAULT_MILESTONES);
+  
   // Milestone states
   const [milestones, setMilestones] = useState<MilestoneStatus[]>(
-    MILESTONES.map(m => ({ step: m.id, status: 'pending' }))
+    DEFAULT_MILESTONES.map(m => ({ step: m.id, status: 'pending' }))
   );
 
   // Animated progress
   const completedCount = milestones.filter(m => m.status === 'completed').length;
-  const progress = Math.round((completedCount / MILESTONES.length) * 100);
+  const progress = Math.round((completedCount / activeMilestones.length) * 100);
 
   // Demo transaction details (would come from API in production)
-  const [txnDetails] = useState<TxnDetails>({
+  const [txnDetails, setTxnDetails] = useState<TxnDetails>({
     amount: 10000,
     currency: 'INR',
     targetCurrency: 'AED',
     rate: 0.04417,
-    fee: 200,
+    fee: 100,
     recipientName: 'Ahmed Al-Rashidi',
   });
 
@@ -141,23 +144,28 @@ function TrackPageInner() {
   }, []);
 
   const markStep = useCallback((wsStep: string, newStatus: 'active' | 'completed') => {
-    const milestone = MILESTONES.find(m => m.wsStep === wsStep);
+    const milestone = activeMilestones.find(m => m.wsStep === wsStep);
     if (!milestone) return;
     const now = new Date().toLocaleTimeString('en-US', { hour12: false });
     setMilestones(prev => prev.map(m =>
       m.step === milestone.id ? { ...m, status: newStatus, timestamp: newStatus === 'completed' ? now : undefined } : m
     ));
-  }, []);
+  }, [activeMilestones]);
 
   // Demo auto-play if no txnId (for standalone demo)
   useEffect(() => {
-    if (txnId) return; // real WS will handle it
+    if (txnId || showConfig) return; // real WS will handle it, and wait for config to complete
     const steps: ('active' | 'completed')[] = ['active', 'completed'];
     let mi = 0;
     let si = 0;
     const interval = setInterval(() => {
-      if (mi >= MILESTONES.length) { clearInterval(interval); setOverallStatus('complete'); return; }
-      const m = MILESTONES[mi];
+      if (mi >= activeMilestones.length) { 
+        clearInterval(interval); 
+        if (timerRef.current) clearInterval(timerRef.current);
+        setOverallStatus('complete'); 
+        return; 
+      }
+      const m = activeMilestones[mi];
       const s = steps[si];
       markStep(m.wsStep, s);
       if (s === 'active') addLog(m.wsStep, 'INFO', `Processing: ${m.label}`);
@@ -167,7 +175,7 @@ function TrackPageInner() {
     }, 1200);
     timerRef.current = setInterval(() => setElapsed(e => e + 100), 100);
     return () => { clearInterval(interval); if (timerRef.current) clearInterval(timerRef.current); };
-  }, [txnId, markStep, addLog]);
+  }, [txnId, showConfig, markStep, addLog, activeMilestones]);
 
   // Real WebSocket if txnId provided
   useEffect(() => {
@@ -207,9 +215,31 @@ function TrackPageInner() {
   }, [txnId, addLog, markStep]);
 
   const elapsedSec = (elapsed / 1000).toFixed(1);
-  const activeStep = MILESTONES.find(m => milestones.find(ms => ms.step === m.id)?.status === 'active');
-  const hoveredMeta = hoveredMilestone ? MILESTONES.find(m => m.id === hoveredMilestone) : null;
+  const activeStep = activeMilestones.find(m => milestones.find(ms => ms.step === m.id)?.status === 'active');
+  const hoveredMeta = hoveredMilestone ? activeMilestones.find(m => m.id === hoveredMilestone) : null;
   const hoveredState = hoveredMilestone ? milestones.find(m => m.step === hoveredMilestone) : null;
+  
+  const handleConfigSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const formData = new FormData(e.target as HTMLFormElement);
+    const amount = Number(formData.get('amount'));
+    const source = formData.get('source') as string;
+    const dest = formData.get('dest') as string;
+    const isUae = dest === 'UAE';
+    
+    // dynamically generate 5 stops based on selections
+    const newStops = [
+      { id: 'sender', label: `${source === 'India' ? '🇮🇳' : source === 'USA' ? '🇺🇸' : '🇦🇪'} Sender`, country: source, description: 'Transaction initiated', lat: source === 'India' ? 19.076 : source === 'USA' ? 40.7128 : 25.2048, lng: source === 'India' ? 72.877 : source === 'USA' ? -74.0060 : 55.2708, icon: source === 'India' ? '🇮🇳' : source === 'USA' ? '🇺🇸' : '🇦🇪', wsStep: 'kyc' },
+      { id: 'bank_lock', label: '🏦 Bank Reserve Lock', country: `${source} Clearing`, description: 'Funds locked at source network', lat: source === 'India' ? 28.6139 : source === 'USA' ? 38.9072 : 24.4539, lng: source === 'India' ? 77.209 : source === 'USA' ? -77.0369 : 54.3773, icon: '🏦', wsStep: 'aml' },
+      { id: 'token_mint', label: '🪙 Token Mint', country: 'Blockchain Layer', description: 'Digital tokens minted on chain', lat: 21.1458, lng: 79.0882, icon: '🪙', wsStep: 'rate_lock' },
+      { id: 'gift_city', label: '🌐 FX Hub', country: 'International Interoperability', description: 'Real-time conversion executed', lat: 23.1685, lng: 72.6498, icon: '🌐', wsStep: 'liquidity' },
+      { id: 'recipient', label: `${dest === 'India' ? '🇮🇳' : dest === 'UAE' ? '🇦🇪' : '🇺🇸'} Recipient`, country: dest, description: 'Funds credited to recipient', lat: dest === 'India' ? 19.076 : dest === 'UAE' ? 25.2048 : 40.7128, lng: dest === 'India' ? 72.877 : dest === 'UAE' ? 55.2708 : -74.0060, icon: dest === 'India' ? '🇮🇳' : dest === 'UAE' ? '🇦🇪' : '🇺🇸', wsStep: 'settlement' },
+    ];
+    setActiveMilestones(newStops);
+    setMilestones(newStops.map(m => ({ step: m.id, status: 'pending' })));
+    setTxnDetails({ amount, currency: source === 'India' ? 'INR' : source === 'USA' ? 'USD' : 'AED', targetCurrency: dest === 'India' ? 'INR' : dest === 'UAE' ? 'AED' : 'USD', rate: dest === 'UAE' ? 0.044 : dest === 'USA' ? 0.012 : 83.2, fee: amount * 0.02, recipientName: formData.get('recipient') as string });
+    setShowConfig(false);
+  };
 
   return (
     <div className="min-h-screen bg-slate-950 flex flex-col">
@@ -257,12 +287,56 @@ function TrackPageInner() {
       </div>
 
       {/* ── Main layout ─────────────────────────── */}
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex overflow-hidden relative">
+        <AnimatePresence>
+          {showConfig && (
+            <motion.div 
+              className="absolute inset-0 z-[2000] bg-slate-950/80 backdrop-blur-xl flex items-center justify-center p-4"
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            >
+              <motion.div className="bg-slate-900 border border-white/10 rounded-3xl p-8 max-w-md w-full shadow-2xl" initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }}>
+                <h2 className="text-2xl font-black text-white mb-2">Initialize Transfer</h2>
+                <p className="text-slate-400 text-sm mb-6">Setup the dynamic simulation parameters.</p>
+                <form onSubmit={handleConfigSubmit} className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1 block">From</label>
+                      <select name="source" className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary-500" defaultValue="India">
+                        <option value="India">🇮🇳 India</option>
+                        <option value="USA">🇺🇸 USA</option>
+                        <option value="UAE">🇦🇪 UAE</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1 block">To</label>
+                      <select name="dest" className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary-500" defaultValue="UAE">
+                        <option value="India">🇮🇳 India</option>
+                        <option value="USA">🇺🇸 USA</option>
+                        <option value="UAE">🇦🇪 UAE</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1 block">Amount</label>
+                    <input name="amount" type="number" defaultValue="10000" className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary-500" required />
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1 block">Recipient Name</label>
+                    <input name="recipient" type="text" defaultValue="John Doe" className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary-500" required />
+                  </div>
+                  <button type="submit" className="w-full bg-gradient-to-r from-primary-500 to-indigo-600 hover:from-primary-400 hover:to-indigo-500 text-white font-bold py-4 rounded-xl mt-4 transition-all hover:scale-[1.02] active:scale-95 shadow-lg shadow-primary-500/20">
+                    <Rocket className="w-5 h-5 mx-auto font-black inline-block mb-1 mr-2" /> Start Live Tracking
+                  </button>
+                </form>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* ── MAP AREA ────────────────────────────── */}
         <div className="flex-1 relative min-h-[400px]">
           <LeafletMap
-            milestones={MILESTONES}
+            milestones={activeMilestones}
             milestoneStates={milestones}
             onHover={setHoveredMilestone}
           />
@@ -399,12 +473,12 @@ function TrackPageInner() {
           <div className="p-5 flex-1">
             <h3 className="text-slate-400 text-xs font-semibold uppercase tracking-wide mb-3 flex items-center justify-between">
               <span>Pipeline</span>
-              <span className="num text-slate-600">{completedCount}/{MILESTONES.length}</span>
+              <span className="num text-slate-600">{completedCount}/{activeMilestones.length}</span>
             </h3>
             <div className="space-y-1">
-              {MILESTONES.map((m, i) => {
+              {activeMilestones.map((m, i) => {
                 const ms = milestones.find(x => x.step === m.id)!;
-                const isLast = i === MILESTONES.length - 1;
+                const isLast = i === activeMilestones.length - 1;
                 return (
                   <div key={m.id} className="relative">
                     {!isLast && (
@@ -505,9 +579,9 @@ function TrackPageInner() {
 
         {/* Horizontal milestones */}
         <div className="flex items-center gap-0">
-          {MILESTONES.map((m, i) => {
+          {activeMilestones.map((m, i) => {
             const ms = milestones.find(x => x.step === m.id)!;
-            const isLast = i === MILESTONES.length - 1;
+            const isLast = i === activeMilestones.length - 1;
             return (
               <div key={m.id} className="flex items-center flex-1">
                 <div className="flex flex-col items-center">

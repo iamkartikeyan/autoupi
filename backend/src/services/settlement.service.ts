@@ -2,6 +2,7 @@ import { supabase } from '../config/supabase';
 import { SETTLEMENT_STEPS, DEMO_SPEED_MULTIPLIERS, EXCHANGE_RATES, TRANSACTION_FEE_PERCENT } from '../config/constants';
 import { v4 as uuidv4 } from 'uuid';
 import { Server as SocketServer } from 'socket.io';
+import { mockDb } from './mockDb';
 
 let io: SocketServer;
 
@@ -34,15 +35,7 @@ async function emitLog(transactionId: string, step: string, status: string, mess
     io.to(`txn_${transactionId}`).emit('txn_log', log);
     io.to('admin').emit('admin_log', log);
   }
-
-  // Save to DB
-  await supabase.from('transaction_logs').insert({
-    id: uuidv4(),
-    transaction_id: transactionId,
-    step,
-    status,
-    message,
-  });
+  // MOCK: Removed Supabase insert
 }
 
 export async function initiateTransaction(
@@ -62,17 +55,14 @@ export async function initiateTransaction(
   const fee = Math.round(amount * TRANSACTION_FEE_PERCENT * 100) / 100;
   const finalAmount = Math.round(amount * exchangeRate * 100) / 100;
 
-  // Check user balance
-  const { data: user } = await supabase.from('users').select('wallet_balance').eq('id', userId).single();
-  if (!user || user.wallet_balance < amount + fee) {
+  // MOCK: Check mock balance
+  if (mockDb.balance < amount + fee) {
     throw new Error('Insufficient balance');
   }
 
-  // Create transaction
+  // Create transaction mock
   const transactionId = uuidv4();
-  const { data: transaction, error } = await supabase
-    .from('transactions')
-    .insert({
+  const transaction = {
       id: transactionId,
       user_id: userId,
       amount,
@@ -84,11 +74,10 @@ export async function initiateTransaction(
       fee,
       final_amount: finalAmount,
       status: 'PENDING',
-    })
-    .select()
-    .single();
+      created_at: new Date().toISOString()
+  };
 
-  if (error) throw error;
+  mockDb.transactions.unshift(transaction);
 
   // Start processing async (don't await)
   processTransaction(transactionId, userId, amount, fee).catch(console.error);
@@ -105,8 +94,7 @@ async function processTransaction(transactionId: string, userId: string, amount:
   const startTime = Date.now();
 
   try {
-    // Update status to processing
-    await supabase.from('transactions').update({ status: 'PROCESSING' }).eq('id', transactionId);
+    // MOCK: Emit directly, no DB update
     if (io) io.to(`txn_${transactionId}`).emit('txn_status', { status: 'PROCESSING' });
 
     // Process each step
@@ -131,17 +119,15 @@ async function processTransaction(transactionId: string, userId: string, amount:
     const settlementTime = Math.round((Date.now() - startTime) / 100) / 10;
     const hash = generateBlockchainHash();
 
-    // Deduct from user balance
-    await supabase.rpc('deduct_balance', { user_id: userId, amount: amount + fee });
+    // MOCK: Completed!
+    mockDb.balance -= (amount + fee);
+    const txn = mockDb.transactions.find(t => t.id === transactionId);
+    if (txn) {
+      txn.status = 'COMPLETED';
+      txn.blockchain_hash = hash;
+      txn.settlement_time = settlementTime;
+    }
 
-    // Complete transaction
-    await supabase.from('transactions').update({
-      status: 'COMPLETED',
-      blockchain_hash: hash,
-      settlement_time: settlementTime,
-    }).eq('id', transactionId);
-
-    // Emit completion
     if (io) {
       io.to(`txn_${transactionId}`).emit('txn_complete', {
         hash,
@@ -154,7 +140,6 @@ async function processTransaction(transactionId: string, userId: string, amount:
     console.log(`✅ Transaction ${transactionId} completed in ${settlementTime}s`);
   } catch (err) {
     console.error(`❌ Transaction ${transactionId} failed:`, err);
-    await supabase.from('transactions').update({ status: 'FAILED' }).eq('id', transactionId);
     if (io) {
       io.to(`txn_${transactionId}`).emit('txn_failed', { error: 'Settlement failed' });
     }
@@ -162,28 +147,19 @@ async function processTransaction(transactionId: string, userId: string, amount:
 }
 
 export async function getTransaction(transactionId: string, userId: string) {
-  const { data, error } = await supabase
-    .from('transactions')
-    .select('*, transaction_logs(*)')
-    .eq('id', transactionId)
-    .eq('user_id', userId)
-    .single();
-
-  if (error) throw error;
-  return data;
+  // MOCK
+  const txn = mockDb.transactions.find(t => t.id === transactionId);
+  return txn || null;
 }
 
 export async function getUserTransactions(userId: string, page = 1, limit = 10) {
+  // MOCK
   const from = (page - 1) * limit;
-  const to = from + limit - 1;
-
-  const { data, error, count } = await supabase
-    .from('transactions')
-    .select('*', { count: 'exact' })
-    .eq('user_id', userId)
-    .order('created_at', { ascending: false })
-    .range(from, to);
-
-  if (error) throw error;
-  return { transactions: data, total: count, page, limit };
+  const to = from + limit;
+  return { 
+    transactions: mockDb.transactions.slice(from, to), 
+    total: mockDb.transactions.length, 
+    page, 
+    limit 
+  };
 }

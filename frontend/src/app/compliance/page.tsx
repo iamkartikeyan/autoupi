@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import Link from 'next/link';
 import { 
   ShieldCheck, 
   Lock, 
@@ -54,7 +55,7 @@ const COMPLIANCE_CHECKS = [
     icon: FileCheck,
     reg: 'FEMA (CAT) Rules, 2000',
     details: 'We enforce the Liberalised Remittance Scheme (LRS) limits of $250,000 per financial year for individuals. All transactions are reported to authorized dealer banks in real-time.',
-    link: 'https://www.rbi.org.in/Scripts/BS_ViewFemaFunctions.aspx'
+    link: 'https://rbi.org.in/Scripts/Fema.aspx'
   },
   {
     id: 'kyc',
@@ -65,7 +66,7 @@ const COMPLIANCE_CHECKS = [
     icon: Users,
     reg: 'PMLA Act, 2002',
     details: 'Our systems perform automated Aadhaar and PAN verification. We conduct real-time anti-money laundering (AML) checks against global sanctions lists (OFAC, UN, EU).',
-    link: '#'
+    link: 'https://rbi.org.in/Scripts/BS_ViewMasDirections.aspx?id=11566'
   },
   {
     id: 'dpdp',
@@ -76,7 +77,7 @@ const COMPLIANCE_CHECKS = [
     icon: LockKeyhole,
     reg: 'DPDP Act, 2023',
     details: 'In compliance with the Digital Personal Data Protection Act, all sensitive payment and personal data is stored exclusively on servers located within the territorial boundaries of India.',
-    link: '#'
+    link: 'https://www.meity.gov.in/digital-personal-data-protection-act-2023'
   },
   {
     id: 'gift',
@@ -88,6 +89,83 @@ const COMPLIANCE_CHECKS = [
     reg: 'IFSCA Regulation 2020',
     details: 'Forex conversion is executed through authorized entities in GIFT City, Gandhinagar, ensuring competitive rates and institutional-grade transparency under IFSCA oversight.',
     link: 'https://ifsca.gov.in/'
+  },
+  {
+    id: 'pcidss',
+    title: 'PCI-DSS Compliant',
+    status: 'Active',
+    description: 'Bank-grade payment security',
+    badge: 'Certified',
+    icon: Lock,
+    reg: 'PCI SSC Standards',
+    details: 'Our infrastructure adheres to the Payment Card Industry Data Security Standard (PCI-DSS), ensuring robust protection for all sensitive financial transactions and payment data.',
+    link: 'https://www.pcisecuritystandards.org/'
+  },
+  {
+    id: 'iso27001',
+    title: 'ISO 27001 Certified',
+    status: 'Active',
+    description: 'Information security management',
+    badge: 'Certified',
+    icon: ShieldCheck,
+    reg: 'ISO/IEC 27001:2022',
+    details: 'We are ISO 27001 certified, demonstrating our commitment to maintaining the highest standards for information security management systems (ISMS).',
+    link: 'https://www.iso.org/isoiec-27001-information-security.html'
+  },
+  {
+    id: 'fiuind',
+    title: 'FIU-IND Reporting',
+    status: 'Active',
+    description: 'Anti-Money Laundering (AML)',
+    badge: 'Compliant',
+    icon: FileCheck,
+    reg: 'PMLA Rules, 2005',
+    details: 'We integrate with the Financial Intelligence Unit - India (FIU-IND) for automated reporting of suspicious transactions (STR) and cash transactions (CTR).',
+    link: 'https://fiuindia.gov.in/'
+  },
+  {
+    id: 'soc2',
+    title: 'SOC 2 Type II',
+    status: 'Active',
+    description: 'AICPA-accredited security audit',
+    badge: 'Certified',
+    icon: ShieldCheck,
+    reg: 'AICPA Trust Services Criteria',
+    details: 'Rigorous annual SOC 2 Type II audits conducted by independent AICPA-accredited firms ensuring strict controls around security and processing integrity.',
+    link: '/trust-center'
+  },
+  {
+    id: 'pentest',
+    title: 'Penetration Testing',
+    status: 'Active',
+    description: 'Continuous vulnerability management',
+    badge: 'Q3 Passed',
+    icon: Shield,
+    reg: 'CREST Standards',
+    details: 'Quarterly black-box uncredentialed penetration testing conducted by CREST-certified elite hackers and an integrated HackerOne bug bounty program.',
+    link: '/trust-center'
+  },
+  {
+    id: 'escrow',
+    title: 'Escrow Segregation',
+    status: 'Active',
+    description: '0% user fiat commingling',
+    badge: 'Audited',
+    icon: Landmark,
+    reg: 'RBI Escrow Guidelines',
+    details: 'Client funds are held in strictly segregated escrow accounts at RBI-regulated Tier-1 banks (SBI, HDFC). 0% of user fiat is mixed with operational capital.',
+    link: '/trust-center'
+  },
+  {
+    id: 'dataretention',
+    title: 'Data Retention Policy',
+    status: 'Active',
+    description: 'Minimal retention & cryptography',
+    badge: 'Compliant',
+    icon: LockKeyhole,
+    reg: 'DPDP Act, 2023',
+    details: 'KYC documents retained for 5 years post closure. Failed KYC is immediately cryptographically destroyed. Incomplete transfer sessions purged in 30 days.',
+    link: '/privacy-policy'
   }
 ];
 
@@ -178,8 +256,9 @@ export default function CompliancePage() {
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           <BrandLogo size={36} textClassName="font-bold text-slate-900" />
           <div className="flex items-center gap-6">
-            <span className="text-sm font-semibold text-slate-500 hover:text-green-600 transition-colors cursor-pointer hidden md:block text-slate-500">Trust Center</span>
-            <span className="text-sm font-semibold text-slate-500 hover:text-green-600 transition-colors cursor-pointer hidden md:block text-slate-500">Privacy Policy</span>
+            <Link href="/trust-center" className="text-sm font-semibold text-slate-500 hover:text-green-600 transition-colors cursor-pointer">Trust Center</Link>
+            <Link href="/privacy-policy" className="text-sm font-semibold text-slate-500 hover:text-green-600 transition-colors cursor-pointer">Privacy Policy</Link>
+            <Link href="/legal" className="text-sm font-semibold text-slate-500 hover:text-green-600 transition-colors cursor-pointer">Legal Hub</Link>
             <button 
               onClick={downloadReport}
               disabled={isGenerating}
@@ -401,12 +480,23 @@ export default function CompliancePage() {
 
       {/* Footer */}
       <footer className="bg-white border-t border-slate-200 py-12">
-        <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-8 text-slate-400 text-[10px] font-black uppercase tracking-widest">
-          <span>&copy; 2026 AutoUPI Terminal. All rights reserved.</span>
-          <div className="flex items-center gap-8">
-            <span className="hover:text-slate-900 cursor-pointer">Regulatory Disclosures</span>
-            <span className="hover:text-slate-900 cursor-pointer">Security Standards</span>
-            <span className="hover:text-slate-900 cursor-pointer">Terms of Service</span>
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="flex flex-wrap items-center justify-center gap-4 md:gap-6 mb-12 opacity-50 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-500">
+            <div className="px-4 py-2 bg-slate-50 font-black text-[10px] md:text-xs uppercase tracking-widest text-slate-600 rounded-xl border border-slate-200 shadow-sm">PCI-DSS Certified</div>
+            <div className="px-4 py-2 bg-slate-50 font-black text-[10px] md:text-xs uppercase tracking-widest text-slate-600 rounded-xl border border-slate-200 shadow-sm">ISO 27001 ISMS</div>
+            <div className="px-4 py-2 bg-slate-50 font-black text-[10px] md:text-xs uppercase tracking-widest text-slate-600 rounded-xl border border-slate-200 shadow-sm">SOC 2 TYPE II</div>
+            <div className="px-4 py-2 bg-slate-50 font-black text-[10px] md:text-xs uppercase tracking-widest text-slate-600 rounded-xl border border-slate-200 shadow-sm">GDPR Compliant</div>
+            <div className="px-4 py-2 bg-slate-50 font-black text-[10px] md:text-xs uppercase tracking-widest text-slate-600 rounded-xl border border-slate-200 shadow-sm">MeitY Empanelled</div>
+          </div>
+          
+          <div className="flex flex-col md:flex-row items-center justify-between gap-8 text-slate-400 text-[10px] font-black uppercase tracking-widest">
+            <span>&copy; 2026 AutoUPI Terminal. All rights reserved.</span>
+            <div className="flex flex-wrap justify-center items-center gap-6 md:gap-8">
+              <Link href="/terms" className="hover:text-slate-900 cursor-pointer transition-colors">Terms of Service</Link>
+              <Link href="/cookies" className="hover:text-slate-900 cursor-pointer transition-colors">Cookies</Link>
+              <Link href="/acceptable-use" className="hover:text-slate-900 cursor-pointer transition-colors">Acceptable Use</Link>
+              <Link href="/risk-disclosure" className="hover:text-slate-900 cursor-pointer transition-colors">Risk Policy</Link>
+            </div>
           </div>
         </div>
       </footer>

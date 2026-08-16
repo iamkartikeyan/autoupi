@@ -4,7 +4,7 @@ import '../styles/globals.css';
 
 export const metadata: Metadata = {
   title: 'AutoUPI – Cross-Border Payments in 8 Seconds',
-  description: 'Send money internationally instantly with AutoUPI. 1% fees. 8-second settlement. Bank-grade security.',
+  description: 'Send money internationally instantly with AutoUPI. 2% fees. 8-second settlement. Bank-grade security.',
   keywords: 'UPI, international transfer, cross-border payments, fintech, fast transfer',
   icons: {
     icon: '/autoupi-logo.jpeg',

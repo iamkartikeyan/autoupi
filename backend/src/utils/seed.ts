@@ -82,7 +82,7 @@ async function seed() {
       recipient_id: RECIPIENT_IDS[recipientIdx],
       recipient_name: RECIPIENT_NAMES[recipientIdx],
       exchange_rate: 0.04417,
-      fee: Math.round(amount * 0.01 * 100) / 100,
+      fee: Math.round(amount * 0.02 * 100) / 100,
       final_amount: Math.round(amount * 0.04417 * 100) / 100,
       status,
       blockchain_hash: status === 'COMPLETED' ? `0x${Math.random().toString(16).substr(2, 64)}` : null,

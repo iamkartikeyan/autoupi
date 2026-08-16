@@ -21,13 +21,15 @@ const STATUS_CONFIG = {
 
 export default function DashboardPage() {
   const router = useRouter();
-  const user = getStoredUser();
+  const [mounted, setMounted] = useState(false);
+  const user = mounted ? getStoredUser() : null;
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
 
   useEffect(() => {
+    setMounted(true);
     if (!isAuthenticated()) router.push('/login');
   }, [router]);
 
