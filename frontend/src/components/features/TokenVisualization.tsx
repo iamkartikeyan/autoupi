@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   ArrowRight, Landmark, Lock, Coins, 
   Activity, Flame, CheckCircle, Info,
-  ShieldCheck, Globe, Zap
+  ShieldCheck, Globe, Zap, LucideIcon
 } from 'lucide-react';
 
 // ──────────────────────────────────────────────
@@ -14,7 +14,7 @@ interface TokenStep {
   id: string;
   title: string;
   description: string;
-  icon: React.ElementType;
+  icon: LucideIcon;
   compliance: string;
   color: string;
   label?: string;

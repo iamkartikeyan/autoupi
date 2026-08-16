@@ -26,7 +26,7 @@ function generateBlockchainHash(): string {
 }
 
 async function emitLog(transactionId: string, step: string, status: string, message: string) {
-  const timestamp = new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit', fractionalSecondDigits: 3 });
+  const timestamp = new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
   
   const log = { step, status, message, timestamp, transactionId };
   

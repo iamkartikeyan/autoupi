@@ -528,7 +528,7 @@ export async function getBlockchainStats(): Promise<{
   const { data: volumeData } = await supabase
     .from('blockchain_transactions')
     .select('amount')
-    .eq('block_id', 'IS NOT NULL', { count: 'exact' });
+    .not('block_id', 'is', null);
 
   const totalVolume = volumeData?.reduce((sum, txn) => sum + Number(txn.amount), 0) || 0;
 

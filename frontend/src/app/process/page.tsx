@@ -3,11 +3,11 @@ import { useEffect, useState, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { io, Socket } from 'socket.io-client';
-import { CheckCircle, Circle, Loader2, Shield, Lock, Database, Rocket, Bell } from 'lucide-react';
+import { CheckCircle, Circle, Loader2, Shield, Lock, Database, Rocket, Bell, LucideIcon } from 'lucide-react';
 import BrandLogo from '@/components/ui/BrandLogo';
 import TokenVisualization from '@/components/features/TokenVisualization';
 
-const STEP_ICONS: Record<string, React.ElementType> = {
+const STEP_ICONS: Record<string, LucideIcon> = {
   kyc: Shield, aml: Shield, rate_lock: Lock,
   liquidity: Database, settlement: Rocket, notify: Bell,
 };
