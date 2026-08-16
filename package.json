@@ -7,7 +7,8 @@
     "dev:fresh": "npm run dev:clean && npm run dev",
     "dev:backend": "npm --prefix backend run dev",
     "dev:frontend": "npm --prefix frontend run dev",
-    "build": "npm --prefix backend run build && npm --prefix frontend run build"
+    "build": "npm --prefix frontend install && npm --prefix frontend run build",
+    "build:all": "npm --prefix backend install && npm --prefix backend run build && npm --prefix frontend install && npm --prefix frontend run build"
   },
   "devDependencies": {
     "kill-port": "^2.0.1",
