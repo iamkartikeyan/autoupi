@@ -24,7 +24,10 @@ api.interceptors.response.use(
       Cookies.remove('autoupi_token');
       localStorage.removeItem('autoupi_token');
       localStorage.removeItem('autoupi_user');
-      window.location.href = '/login';
+      // Do not redirect if already on login or landing page
+      if (window.location.pathname !== '/login' && window.location.pathname !== '/') {
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(error);
   }
@@ -55,6 +58,19 @@ export const transactionApi = {
   getRates: () => api.get('/rates'),
 };
 
+// Blockchain
+export const blockchainApi = {
+  getMyWallet: () => api.get('/blockchain/wallet/my-wallet'),
+  getWallet: (address: string) => api.get(`/blockchain/wallet/${address}`),
+  getWalletTransactions: (address: string, limit = 10) => api.get(`/blockchain/wallet/${address}/transactions?limit=${limit}`),
+  transfer: (data: { toAddress: string; amount: number }) => api.post('/blockchain/transfer', data),
+  getBlocks: (page = 1, limit = 20) => api.get(`/blockchain/blocks?page=${page}&limit=${limit}`),
+  getBlock: (blockNumber: number) => api.get(`/blockchain/blocks/${blockNumber}`),
+  getTransactions: (page = 1, limit = 20) => api.get(`/blockchain/transactions?page=${page}&limit=${limit}`),
+  getTransaction: (hash: string) => api.get(`/blockchain/transactions/${hash}`),
+  getStats: () => api.get('/blockchain/stats'),
+};
+
 // Admin
 export const adminApi = {
   getStats: () => api.get('/admin/stats'),
@@ -66,7 +82,7 @@ export const adminApi = {
 
 // Save auth data
 export function saveAuthData(token: string, user: Record<string, unknown>) {
-  Cookies.set('autoupi_token', token, { expires: 7, secure: true, sameSite: 'lax' });
+  Cookies.set('autoupi_token', token, { expires: 7, secure: false, sameSite: 'lax' });
   if (typeof window !== 'undefined') {
     localStorage.setItem('autoupi_token', token);
     localStorage.setItem('autoupi_user', JSON.stringify(user));
@@ -88,5 +104,6 @@ export function clearAuth() {
 }
 
 export function isAuthenticated() {
-  return !!Cookies.get('autoupi_token');
+  if (typeof window === 'undefined') return false;
+  return !!Cookies.get('autoupi_token') || !!localStorage.getItem('autoupi_token');
 }

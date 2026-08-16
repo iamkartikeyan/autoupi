@@ -1,451 +1,355 @@
 'use client';
-import { useState, useEffect, useRef } from 'react';
+
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
-import { ArrowRight, Phone, Mail, User, Shield, Zap, Globe, CheckCircle, ChevronLeft, KeyRound, Smartphone } from 'lucide-react';
+import {
+  Phone,
+  ArrowRight,
+  Shield,
+  Zap,
+  Lock,
+  ChevronLeft,
+  KeyRound,
+  CheckCircle2,
+  Sparkles,
+  Info,
+} from 'lucide-react';
 import { authApi, saveAuthData, isAuthenticated } from '@/lib/api';
 import BrandLogo from '@/components/ui/BrandLogo';
+import Button from '@/components/ui/Button';
+import Card from '@/components/ui/Card';
+import ThemeToggle from '@/components/ui/ThemeToggle';
 
-const FEATURES = [
-  { icon: Zap, label: '8-second settlement', color: 'text-yellow-400' },
-  { icon: Shield, label: 'Bank-grade security', color: 'text-blue-400' },
-  { icon: Globe, label: 'Multi-currency support', color: 'text-green-400' },
-];
-
-const DEMO_CREDENTIALS = { phone: '+911234567890', email: 'demo@autoupi.com', name: 'Demo User', otp: '123456', password: 'password123' };
-
-type AuthType = 'login' | 'signup';
-type AuthMethod = 'otp' | 'password';
-type Step = 'details' | 'otp';
+const DEMO_USER = {
+  phone: '+911234567890',
+  email: 'demo@autoupi.com',
+  name: 'Demo User',
+  otp: '123456',
+};
 
 export default function LoginPage() {
   const router = useRouter();
-  const [mode, setMode] = useState<AuthType>('login');
-  const [method, setMethod] = useState<AuthMethod>('otp');
-  const [step, setStep] = useState<Step>('details');
-  const [loading, setLoading] = useState(false);
-  
+  const [mounted, setMounted] = useState(false);
+  const [step, setStep] = useState<'phone' | 'otp'>('phone');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
   const [fullName, setFullName] = useState('');
-  const [password, setPassword] = useState('');
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
+  const [loading, setLoading] = useState(false);
   const [timer, setTimer] = useState(0);
+  const [showDemoInfo, setShowDemoInfo] = useState(false);
+
   const otpRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   useEffect(() => {
-    if (isAuthenticated()) router.push('/dashboard');
+    setMounted(true);
+    if (isAuthenticated()) {
+      router.replace('/dashboard');
+    }
   }, [router]);
 
   useEffect(() => {
     if (timer > 0) {
-      const id = setTimeout(() => setTimer(t => t - 1), 1000);
+      const id = setTimeout(() => setTimer((t) => t - 1), 1000);
       return () => clearTimeout(id);
     }
   }, [timer]);
 
-  function switchMode(m: AuthType) {
-    setMode(m);
-    setStep('details');
-    resetFields();
-  }
-
-  function switchMethod(m: AuthMethod) {
-    setMethod(m);
-    setStep('details');
-    resetFields();
-  }
-
-  function resetFields() {
-    setPhone('');
-    setEmail('');
-    setFullName('');
-    setPassword('');
-    setOtp(['', '', '', '', '', '']);
-  }
-
-  async function handleFormSubmit(e: React.FormEvent) {
+  // Request OTP
+  const handleRequestOTP = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!phone || phone.length < 10) return toast.error('Enter a valid phone number');
-    
-    // OTP Flow
-    if (method === 'otp') {
-      if (mode === 'signup' && !fullName.trim()) return toast.error('Full name is required');
-      setLoading(true);
-      try {
-        await authApi.requestOTP(phone, email);
-        setStep('otp');
-        setTimer(60);
-        toast.success(mode === 'signup' ? 'OTP sent! Verify to create your account.' : 'OTP sent! (Demo: 123456)');
-        setTimeout(() => otpRefs.current[0]?.focus(), 300);
-      } catch (err: any) {
-        toast.error(err.response?.data?.error || 'Failed to send OTP');
-      } finally {
-        setLoading(false);
-      }
-    } 
-    // Password Flow
-    else {
-      if (mode === 'signup') {
-        if (!fullName.trim()) return toast.error('Full name is required');
-        if (password.length < 6) return toast.error('Password must be at least 6 characters');
-        setLoading(true);
-        try {
-          const res = await authApi.registerPassword(phone, email, fullName, password);
-          const { token, user } = res.data.data;
-          saveAuthData(token, user);
-          toast.success(`Welcome to AutoUPI, ${user.full_name}! 🎉`);
-          setTimeout(() => router.push(user.role === 'ADMIN' ? '/admin' : '/send'), 500);
-        } catch (err: any) {
-          toast.error(err.response?.data?.error || 'Failed to create account');
-        } finally {
-          setLoading(false);
-        }
-      } else {
-        if (!password) return toast.error('Password is required');
-        setLoading(true);
-        try {
-          const res = await authApi.loginPassword(phone, password);
-          const { token, user } = res.data.data;
-          saveAuthData(token, user);
-          toast.success('Welcome back! 🚀');
-          setTimeout(() => router.push(user.role === 'ADMIN' ? '/admin' : '/send'), 500);
-        } catch (err: any) {
-          toast.error(err.response?.data?.error || 'Invalid credentials');
-        } finally {
-          setLoading(false);
-        }
-      }
+    if (!phone || phone.length < 10) {
+      return toast.error('Please enter a valid 10-digit mobile number');
     }
-  }
 
-  async function handleVerifyOTP(e: React.FormEvent) {
-    e.preventDefault();
-    const otpStr = otp.join('');
-    if (otpStr.length < 6) return toast.error('Enter 6-digit OTP');
     setLoading(true);
     try {
-      const res = await authApi.verifyOTP(phone, email, fullName, otpStr);
-      const { token, user } = res.data.data;
-      saveAuthData(token, user);
-      toast.success(mode === 'signup' ? `Welcome to AutoUPI, ${user.full_name}! 🎉` : 'Welcome back! 🚀');
-      setTimeout(() => router.push(user.role === 'ADMIN' ? '/admin' : '/send'), 500);
+      await authApi.requestOTP(phone, email || `${phone}@autoupi.demo`);
+      setStep('otp');
+      setTimer(45);
+      toast.success('OTP sent! Use demo OTP 123456');
+      setTimeout(() => otpRefs.current[0]?.focus(), 300);
     } catch (err: any) {
-      toast.error(err.response?.data?.error || 'Invalid OTP');
-      setOtp(['', '', '', '', '', '']);
-      otpRefs.current[0]?.focus();
+      toast.error(err.response?.data?.error || 'Failed to send OTP');
     } finally {
       setLoading(false);
     }
-  }
+  };
 
-  function handleOtpChange(index: number, value: string) {
-    if (!/^\d*$/.test(value)) return;
+  // Handle OTP Input Box changes
+  const handleOtpChange = (index: number, val: string) => {
+    if (!/^\d*$/.test(val)) return;
+
     const newOtp = [...otp];
-    newOtp[index] = value.slice(-1);
+    newOtp[index] = val.slice(-1);
     setOtp(newOtp);
-    if (value && index < 5) otpRefs.current[index + 1]?.focus();
-  }
 
-  function handleOtpKeyDown(index: number, e: React.KeyboardEvent) {
+    // Auto-advance
+    if (val && index < 5) {
+      otpRefs.current[index + 1]?.focus();
+    }
+  };
+
+  // Handle OTP Backspace
+  const handleOtpKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Backspace' && !otp[index] && index > 0) {
       otpRefs.current[index - 1]?.focus();
     }
-  }
+  };
 
-  function fillDemo() {
-    setPhone(DEMO_CREDENTIALS.phone);
-    setEmail(DEMO_CREDENTIALS.email);
-    setFullName(DEMO_CREDENTIALS.name);
-    if (method === 'password') setPassword(DEMO_CREDENTIALS.password);
-    toast('Demo credentials filled!', { icon: '✨' });
-  }
+  // Handle OTP Paste
+  const handleOtpPaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    const pasted = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
+    if (!pasted) return;
+
+    const newOtp = [...otp];
+    for (let i = 0; i < pasted.length; i++) {
+      newOtp[i] = pasted[i];
+    }
+    setOtp(newOtp);
+    if (pasted.length === 6) {
+      handleVerifyOTP(pasted);
+    }
+  };
+
+  // Verify OTP & Login
+  const handleVerifyOTP = async (otpCode?: string) => {
+    const code = otpCode || otp.join('');
+    if (code.length < 6) {
+      return toast.error('Please enter all 6 digits of your OTP');
+    }
+
+    setLoading(true);
+    try {
+      const res = await authApi.verifyOTP(
+        phone,
+        email || `${phone.replace('+', '')}@autoupi.demo`,
+        fullName || 'Demo User',
+        code
+      );
+      const { token, user } = res.data.data;
+      saveAuthData(token, user);
+      toast.success(`Welcome back, ${user.full_name?.split(' ')[0] || 'User'}! ⚡`);
+      router.push(user.role === 'ADMIN' ? '/admin' : '/dashboard');
+    } catch (err: any) {
+      toast.error(err.response?.data?.error || 'Invalid OTP code. Try 123456 in Demo mode.');
+      setLoading(false);
+    }
+  };
+
+  // Fill Demo
+  const fillDemoData = () => {
+    setPhone(DEMO_USER.phone);
+    setEmail(DEMO_USER.email);
+    setFullName(DEMO_USER.name);
+    toast.success('Filled Demo credentials! Click Continue.');
+  };
+
+  if (!mounted) return null;
 
   return (
-    <div className="min-h-screen flex overflow-hidden bg-slate-950">
-      {/* Left - Branding Panel */}
-      <div className="hidden lg:flex lg:w-1/2 relative flex-col justify-between p-12 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary-900 via-slate-900 to-accent-700/50" />
-        <div className="absolute inset-0 bg-noise opacity-30" />
-        <div className="absolute top-20 left-20 w-80 h-80 bg-primary-500/20 rounded-full blur-3xl animate-float" />
-        <div className="absolute bottom-20 right-20 w-64 h-64 bg-accent-500/20 rounded-full blur-3xl animate-float" style={{ animationDelay: '1.5s' }} />
+    <div className="min-h-screen flex flex-col justify-between bg-[#F8FAFC] dark:bg-[#0B0F19] p-4 sm:p-6 transition-colors duration-200">
+      {/* Top Header */}
+      <div className="max-w-md w-full mx-auto flex items-center justify-between">
+        <button
+          type="button"
+          onClick={() => (step === 'otp' ? setStep('phone') : router.push('/'))}
+          className="p-2 rounded-xl bg-slate-100 dark:bg-white/[0.06] hover:bg-slate-200 dark:hover:bg-white/[0.1] text-slate-700 dark:text-slate-200 transition-colors"
+          aria-label="Go back"
+        >
+          <ChevronLeft className="w-5 h-5" />
+        </button>
 
-        <div className="relative z-10">
-          <BrandLogo className="mb-16" size={44} priority textClassName="text-2xl font-bold text-white tracking-tight" />
-          <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-            <h1 className="text-5xl font-bold text-white leading-tight mb-6 text-balance">
-              Cross-Border Payments in{' '}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-300 to-accent-300">
-                8 Seconds
-              </span>
-            </h1>
-            <p className="text-slate-300 text-lg leading-relaxed mb-10">
-              Send money internationally with UPI-level speed. 2% fees. Real-time tracking. Bank-grade security.
-            </p>
-            <div className="space-y-4">
-              {FEATURES.map((f, i) => (
-                <motion.div key={f.label} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4 + i * 0.1 }} className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
-                    <f.icon className={`w-4 h-4 ${f.color}`} />
-                  </div>
-                  <span className="text-slate-200 font-medium">{f.label}</span>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
-        </div>
+        <BrandLogo size={32} />
 
-        <div className="relative z-10 grid grid-cols-3 gap-4">
-          {[
-            { value: '8s', label: 'Settlement' },
-            { value: '2%', label: 'Fees' },
-            { value: '99.7%', label: 'Success rate' },
-          ].map((s) => (
-            <div key={s.label} className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/10">
-              <div className="text-2xl font-bold text-white num">{s.value}</div>
-              <div className="text-xs text-slate-400 mt-0.5">{s.label}</div>
-            </div>
-          ))}
-        </div>
+        <ThemeToggle size="sm" />
       </div>
 
-      {/* Right - Auth Panel */}
-      <div className="flex-1 flex items-center justify-center p-6 lg:p-12 overflow-y-auto">
-        <div className="w-full max-w-md my-auto flex flex-col pt-8 pb-12">
-          {/* Mobile Logo */}
-          <div className="lg:hidden mb-10">
-            <BrandLogo size={36} priority textClassName="text-xl font-bold text-white" />
-          </div>
-
+      {/* Main Form Container */}
+      <div className="max-w-md w-full mx-auto my-auto py-6 space-y-6">
+        <Card variant="elevated" padding="lg" className="border-slate-200/80 dark:border-white/10 shadow-2xl">
           <AnimatePresence mode="wait">
-            {step === 'details' ? (
-              <motion.div key="details" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.3 }}>
-
-                {/* Mode Toggle (Login / Signup) */}
-                <div className="flex bg-white/5 border border-white/10 rounded-2xl p-1 mb-6">
-                  <button
-                    onClick={() => switchMode('login')}
-                    className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${
-                      mode === 'login' ? 'bg-primary-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'
-                    }`}
-                  >
-                    Sign In
-                  </button>
-                  <button
-                    onClick={() => switchMode('signup')}
-                    className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${
-                      mode === 'signup' ? 'bg-primary-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'
-                    }`}
-                  >
-                    Create Account
-                  </button>
-                </div>
-
-                <div className="mb-6">
-                  <h2 className="text-3xl font-bold text-white mb-2">
-                    {mode === 'login' ? 'Welcome back' : 'Create Account'}
-                  </h2>
-                  <p className="text-slate-400">
-                    {mode === 'login' ? 'Sign in to continue to AutoUPI' : 'Start sending money in seconds'}
+            {step === 'phone' ? (
+              <motion.div
+                key="phone-step"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 20 }}
+                transition={{ duration: 0.2 }}
+                className="space-y-6"
+              >
+                {/* Title */}
+                <div className="space-y-1 text-center sm:text-left">
+                  <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
+                    Sign in to AutoUPI
+                  </h1>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    Enter your mobile number to receive a secure OTP.
                   </p>
                 </div>
 
-                {/* Method Toggle (OTP / Password) */}
-                <div className="flex gap-4 mb-8">
-                  <button
-                    onClick={() => switchMethod('otp')}
-                    className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl border transition-all ${
-                      method === 'otp' ? 'border-primary-500 bg-primary-500/10 text-primary-300' : 'border-white/10 bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white'
-                    }`}
-                  >
-                    <Smartphone className="w-4 h-4" /> OTP Login
-                  </button>
-                  <button
-                    onClick={() => switchMethod('password')}
-                    className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl border transition-all ${
-                      method === 'password' ? 'border-primary-500 bg-primary-500/10 text-primary-300' : 'border-white/10 bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white'
-                    }`}
-                  >
-                    <KeyRound className="w-4 h-4" /> Password
-                  </button>
-                </div>
-
-                {/* Demo banner */}
-                <button
-                  onClick={fillDemo}
-                  className="w-full mb-6 py-3 px-4 rounded-xl bg-white/5 border border-white/10 text-slate-300 text-sm font-medium flex items-center justify-between hover:bg-white/10 transition-colors"
-                >
-                  <span>✨ Fill Demo Credentials</span>
-                  {method === 'otp' ? <span className="text-xs text-slate-500">OTP: 123456</span> : <span className="text-xs text-slate-500">Pass: password123</span>}
-                </button>
-
-                <form onSubmit={handleFormSubmit} className="space-y-4">
+                {/* Form */}
+                <form onSubmit={handleRequestOTP} className="space-y-4">
                   {/* Phone Input */}
-                  <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-1.5">Phone Number *</label>
-                    <div className="relative">
-                      <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                      Mobile Number
+                    </label>
+                    <div className="relative flex items-center">
+                      <span className="absolute left-3.5 text-xs font-bold text-slate-500">
+                        🇮🇳 +91
+                      </span>
                       <input
                         type="tel"
-                        value={phone}
-                        onChange={e => setPhone(e.target.value)}
-                        placeholder="+91 98765 43210"
-                        className="w-full bg-white/5 border border-white/10 rounded-xl pl-11 pr-4 py-3 text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500/50"
+                        inputMode="tel"
                         required
+                        value={phone.replace(/^\+91/, '')}
+                        onChange={(e) => setPhone(`+91${e.target.value.replace(/\D/g, '')}`)}
+                        placeholder="98765 43210"
+                        className="input-field pl-16 font-mono text-sm tracking-wider"
+                        autoFocus
                       />
                     </div>
                   </div>
 
-                  {/* Email Input */}
-                  <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-1.5">Email {mode === 'login' ? '(optional)' : '*'}</label>
-                    <div className="relative">
-                      <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-                      <input
-                        type="email"
-                        value={email}
-                        onChange={e => setEmail(e.target.value)}
-                        placeholder="you@example.com"
-                        required={mode === 'signup'}
-                        className="w-full bg-white/5 border border-white/10 rounded-xl pl-11 pr-4 py-3 text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500/50"
-                      />
-                    </div>
+                  {/* Full Name (Optional) */}
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                      Full Name <span className="text-slate-400 font-normal">(Optional)</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      placeholder="e.g. Rahul Sharma"
+                      className="input-field"
+                    />
                   </div>
 
-                  {/* Full Name Input (Signup only) */}
-                  <AnimatePresence>
-                    {mode === 'signup' && (
-                      <motion.div
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: 'auto' }}
-                        exit={{ opacity: 0, height: 0 }}
-                        transition={{ duration: 0.2 }}
-                      >
-                        <div className="pt-1">
-                          <label className="block text-sm font-medium text-slate-300 mb-1.5">Full Name *</label>
-                          <div className="relative">
-                            <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-                            <input
-                              type="text"
-                              value={fullName}
-                              onChange={e => setFullName(e.target.value)}
-                              placeholder="Your full name"
-                              required={mode === 'signup'}
-                              className="w-full bg-white/5 border border-white/10 rounded-xl pl-11 pr-4 py-3 text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500/50"
-                            />
-                          </div>
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-
-                  {/* Password Input (Password method only) */}
-                  <AnimatePresence>
-                    {method === 'password' && (
-                      <motion.div
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: 'auto' }}
-                        exit={{ opacity: 0, height: 0 }}
-                        transition={{ duration: 0.2 }}
-                      >
-                        <div className="pt-1">
-                          <label className="block text-sm font-medium text-slate-300 mb-1.5">Password *</label>
-                          <div className="relative">
-                            <KeyRound className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-                            <input
-                              type="password"
-                              value={password}
-                              onChange={e => setPassword(e.target.value)}
-                              placeholder="••••••••"
-                              required={method === 'password'}
-                              className="w-full bg-white/5 border border-white/10 rounded-xl pl-11 pr-4 py-3 text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500/50"
-                            />
-                          </div>
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-
-                  <button
+                  {/* Submit Button */}
+                  <Button
                     type="submit"
-                    disabled={loading}
-                    className="w-full py-3.5 mt-4 rounded-xl bg-gradient-to-r from-primary-600 to-accent-500 text-white font-semibold flex items-center justify-center gap-2 hover:shadow-glow hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 disabled:opacity-50 disabled:transform-none"
+                    size="lg"
+                    isLoading={loading}
+                    className="w-full text-sm font-bold shadow-glow-primary mt-2"
+                    rightIcon={<ArrowRight className="w-4 h-4" />}
                   >
-                    {loading ? (
-                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    ) : (
-                      <>
-                        {method === 'otp' ? (mode === 'signup' ? 'Send OTP' : 'Send OTP') : (mode === 'signup' ? 'Create Account' : 'Sign In')}
-                        <ArrowRight className="w-4 h-4" />
-                      </>
-                    )}
-                  </button>
+                    Continue with OTP
+                  </Button>
                 </form>
+
+                {/* Demo Credentials Helper */}
+                <div className="pt-2 border-t border-slate-100 dark:border-white/5 text-center">
+                  <button
+                    type="button"
+                    onClick={fillDemoData}
+                    className="text-xs font-bold text-primary-600 dark:text-primary-400 hover:underline inline-flex items-center gap-1.5"
+                  >
+                    <Sparkles className="w-3.5 h-3.5" />
+                    <span>Click here to fill Demo Account (+911234567890)</span>
+                  </button>
+                </div>
               </motion.div>
             ) : (
-              <motion.div key="otp" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.3 }}>
-                <button onClick={() => setStep('details')} className="flex items-center gap-2 text-slate-400 hover:text-white mb-8 text-sm transition-colors">
-                  <ChevronLeft className="w-4 h-4" /> Back
-                </button>
-
-                <div className="mb-8">
-                  <div className="w-14 h-14 rounded-2xl bg-primary-500/20 flex items-center justify-center mb-4">
-                    <CheckCircle className="w-7 h-7 text-primary-400" />
-                  </div>
-                  <h2 className="text-3xl font-bold text-white mb-2">Verify OTP</h2>
-                  <p className="text-slate-400 text-sm">
-                    {mode === 'signup' ? 'Verify your phone to create your account' : 'Enter the 6-digit code sent to'}{' '}
-                    <span className="text-slate-200 font-medium">{phone}</span>
+              <motion.div
+                key="otp-step"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.2 }}
+                className="space-y-6"
+              >
+                {/* Title */}
+                <div className="space-y-1 text-center sm:text-left">
+                  <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
+                    Verify Security Code
+                  </h1>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    We sent a 6-digit OTP to <span className="font-bold text-slate-800 dark:text-slate-200">{phone}</span>
                   </p>
-                  <p className="text-primary-400 text-xs mt-1 font-mono">Demo mode: use 123456</p>
                 </div>
 
-                <form onSubmit={handleVerifyOTP} className="space-y-8">
-                  <div className="flex gap-3 justify-center">
-                    {otp.map((digit, i) => (
-                      <input
-                        key={i}
-                        ref={el => { otpRefs.current[i] = el; }}
-                        type="text"
-                        inputMode="numeric"
-                        maxLength={1}
-                        value={digit}
-                        onChange={e => handleOtpChange(i, e.target.value)}
-                        onKeyDown={e => handleOtpKeyDown(i, e)}
-                        className="w-12 h-14 text-center text-xl font-bold text-white bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all num"
-                      />
-                    ))}
-                  </div>
+                {/* 6 Digit OTP Inputs */}
+                <div className="flex items-center justify-between gap-2">
+                  {otp.map((digit, idx) => (
+                    <input
+                      key={idx}
+                      ref={(el) => {
+                        otpRefs.current[idx] = el;
+                      }}
+                      type="text"
+                      inputMode="numeric"
+                      maxLength={1}
+                      value={digit}
+                      onChange={(e) => handleOtpChange(idx, e.target.value)}
+                      onKeyDown={(e) => handleOtpKeyDown(idx, e)}
+                      onPaste={handleOtpPaste}
+                      className="w-12 h-14 text-center text-xl font-mono font-black rounded-xl bg-slate-50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500/40 focus:border-primary-500 transition-all"
+                    />
+                  ))}
+                </div>
 
-                  <button
-                    type="submit"
-                    disabled={loading || otp.join('').length < 6}
-                    className="w-full py-4 rounded-xl bg-gradient-to-r from-primary-600 to-accent-500 text-white font-semibold flex items-center justify-center gap-2 hover:shadow-glow hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 disabled:opacity-50 disabled:transform-none"
-                  >
-                    {loading ? (
-                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    ) : (
-                      <>
-                        {mode === 'signup' ? 'Create My Account' : 'Verify & Login'} <ArrowRight className="w-4 h-4" />
-                      </>
-                    )}
-                  </button>
+                {/* Verify Button */}
+                <Button
+                  type="button"
+                  size="lg"
+                  isLoading={loading}
+                  onClick={() => handleVerifyOTP()}
+                  className="w-full text-sm font-bold shadow-glow-primary"
+                >
+                  Verify & Enter Dashboard
+                </Button>
 
-                  <div className="text-center">
-                    {timer > 0 ? (
-                      <span className="text-slate-500 text-sm num">Resend in {timer}s</span>
-                    ) : (
-                      <button type="button" onClick={handleFormSubmit} className="text-primary-400 hover:text-primary-300 text-sm font-medium transition-colors">
-                        Resend OTP
-                      </button>
-                    )}
-                  </div>
-                </form>
+                {/* Resend & Demo OTP note */}
+                <div className="flex items-center justify-between text-xs pt-1">
+                  <span className="text-slate-500 dark:text-slate-400">
+                    Demo OTP: <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400">123456</span>
+                  </span>
+
+                  {timer > 0 ? (
+                    <span className="text-slate-400 font-mono">Resend in {timer}s</span>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={handleRequestOTP}
+                      className="text-primary-600 dark:text-primary-400 font-bold hover:underline"
+                    >
+                      Resend Code
+                    </button>
+                  )}
+                </div>
               </motion.div>
             )}
           </AnimatePresence>
+        </Card>
+
+        {/* Security Assurance */}
+        <div className="flex items-center justify-center gap-4 text-xs text-slate-400 font-medium text-center">
+          <div className="flex items-center gap-1">
+            <Shield className="w-3.5 h-3.5 text-emerald-500" />
+            <span>Bank-Grade 256-Bit TLS</span>
+          </div>
+          <span>•</span>
+          <div className="flex items-center gap-1">
+            <Lock className="w-3.5 h-3.5 text-primary-500" />
+            <span>Zero Password Leak Risk</span>
+          </div>
         </div>
+      </div>
+
+      {/* Footer Note */}
+      <div className="text-center text-[11px] text-slate-400 max-w-sm mx-auto">
+        By continuing, you agree to AutoUPI's{' '}
+        <button onClick={() => router.push('/terms')} className="underline hover:text-slate-700 dark:hover:text-white">
+          Terms of Service
+        </button>{' '}
+        and{' '}
+        <button onClick={() => router.push('/privacy-policy')} className="underline hover:text-slate-700 dark:hover:text-white">
+          Privacy Policy
+        </button>.
       </div>
     </div>
   );
