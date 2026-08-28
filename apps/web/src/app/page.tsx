@@ -26,21 +26,9 @@ import {
   Tag,
   Users,
   History,
-  TrendingUp,
-  Receipt,
-  Tv,
-  Lightbulb,
-  FileText,
-  Lock,
-  Eye,
-  EyeOff,
-  Flame,
-  Plus,
-  BadgePercent,
   CircleDollarSign,
   Gauge,
-  Landmark,
-  ArrowRight
+  Landmark
 } from 'lucide-react';
 
 export default function HomePage() {
@@ -56,13 +44,10 @@ export default function HomePage() {
   } = usePayment();
   const { showToast } = useToast();
 
-  const [searchQuery, setSearchQuery] = useState('');
   const [isLiteModalOpen, setIsLiteModalOpen] = useState(false);
   const [isRechargeModalOpen, setIsRechargeModalOpen] = useState(false);
-  const [isBillPayModalOpen, setIsBillPayModalOpen] = useState(false);
-  const [selectedBillType, setSelectedBillType] = useState('Electricity');
   
-  // Modals from new screenshot
+  // Modals from screenshot
   const [isLoanModalOpen, setIsLoanModalOpen] = useState(false);
   const [isFlexCardModalOpen, setIsFlexCardModalOpen] = useState(false);
   const [isCibilModalOpen, setIsCibilModalOpen] = useState(false);
@@ -98,7 +83,7 @@ export default function HomePage() {
     showToast('Balance Fetched', `Available balance: ₹${(primaryAccount?.balance || 84250).toLocaleString('en-IN')}.00`, 'success');
   };
 
-  // 8 Exact Contacts matching Google Pay Theme (Screenshot 1)
+  // 8 Exact Contacts matching Google Pay Theme
   const PEOPLE_LIST = [
     {
       id: 'ben_kartikeyan',
@@ -165,21 +150,21 @@ export default function HomePage() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#0E0F12] text-[#E3E3E3] pb-24 select-none relative overflow-x-hidden">
+    <div className="min-h-screen bg-[#0E0F12] text-[#E3E3E3] pb-28 select-none relative overflow-x-hidden">
       {/* ========================================================================= */}
       {/* 1. SCENIC GOOGLE PAY DARK VECTOR HEADER BACKGROUND */}
       {/* ========================================================================= */}
-      <div className="relative w-full overflow-hidden bg-gradient-to-b from-[#0A140F] via-[#0E1B14] to-[#0E0F12] pt-3 pb-8 px-4">
-        {/* Landscape Vector SVG Elements */}
-        <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          <svg className="absolute bottom-0 inset-x-0 w-full h-44 text-[#07130D]" viewBox="0 0 500 160" preserveAspectRatio="none">
-            <path d="M0,80 C150,140 320,30 500,90 L500,160 L0,160 Z" fill="#0C1F16" opacity="0.9" />
-            <path d="M0,110 C200,60 360,130 500,105 L500,160 L0,160 Z" fill="#07130D" opacity="1" />
+      <div className="relative w-full overflow-hidden bg-gradient-to-b from-[#0A140F] via-[#0E1B14] to-[#0E0F12] pt-4 pb-6 px-4">
+        {/* Landscape Vector SVG Elements (Positioned safely in top background) */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-70">
+          <svg className="absolute top-0 inset-x-0 w-full h-36 text-[#07130D]" viewBox="0 0 500 120" preserveAspectRatio="none">
+            <path d="M0,60 C150,110 320,20 500,70 L500,120 L0,120 Z" fill="#0C1F16" opacity="0.8" />
+            <path d="M0,85 C200,45 360,95 500,80 L500,120 L0,120 Z" fill="#07130D" opacity="0.9" />
           </svg>
 
-          {/* Bank Building on Left Hill */}
-          <div className="absolute top-12 left-4 opacity-75">
-            <svg viewBox="0 0 80 60" className="w-16 h-12 text-[#1B5E50]">
+          {/* Bank Building on Top Left */}
+          <div className="absolute top-3 left-4 opacity-50">
+            <svg viewBox="0 0 80 60" className="w-12 h-9 text-[#1B5E50]">
               <polygon points="40,5 5,22 75,22" fill="currentColor" />
               <rect x="12" y="24" width="8" height="26" rx="2" fill="currentColor" />
               <rect x="28" y="24" width="8" height="26" rx="2" fill="currentColor" />
@@ -189,43 +174,19 @@ export default function HomePage() {
             </svg>
           </div>
 
-          {/* Night City Buildings on Right */}
-          <div className="absolute top-10 right-4 opacity-80 flex items-end gap-1.5">
-            <div className="w-12 h-20 bg-[#161B1E] rounded-t-md p-1 grid grid-cols-2 gap-1">
-              <div className="w-2 h-2 bg-[#FBC02D] rounded-sm opacity-90 shadow-[0_0_6px_#FBC02D]" />
-              <div className="w-2 h-2 bg-[#20272B] rounded-sm" />
-              <div className="w-2 h-2 bg-[#20272B] rounded-sm" />
-              <div className="w-2 h-2 bg-[#FBC02D] rounded-sm opacity-90 shadow-[0_0_6px_#FBC02D]" />
-              <div className="w-2 h-2 bg-[#FBC02D] rounded-sm opacity-90" />
-              <div className="w-2 h-2 bg-[#20272B] rounded-sm" />
+          {/* Night City Buildings on Top Right */}
+          <div className="absolute top-2 right-4 opacity-60 flex items-end gap-1">
+            <div className="w-9 h-14 bg-[#161B1E] rounded-t-md p-1 grid grid-cols-2 gap-0.5">
+              <div className="w-1.5 h-1.5 bg-[#FBC02D] rounded-sm" />
+              <div className="w-1.5 h-1.5 bg-[#20272B] rounded-sm" />
+              <div className="w-1.5 h-1.5 bg-[#20272B] rounded-sm" />
+              <div className="w-1.5 h-1.5 bg-[#FBC02D] rounded-sm" />
             </div>
-
-            <div className="w-14 h-24 bg-[#121619] rounded-t-md p-1.5 grid grid-cols-3 gap-1">
-              <div className="w-1.5 h-1.5 bg-[#FFA000] rounded-sm opacity-80" />
+            <div className="w-10 h-16 bg-[#121619] rounded-t-md p-1 grid grid-cols-2 gap-0.5">
+              <div className="w-1.5 h-1.5 bg-[#FFA000] rounded-sm" />
               <div className="w-1.5 h-1.5 bg-[#1F2529] rounded-sm" />
-              <div className="w-1.5 h-1.5 bg-[#FFA000] rounded-sm opacity-90 shadow-[0_0_6px_#FFA000]" />
+              <div className="w-1.5 h-1.5 bg-[#FFA000] rounded-sm" />
               <div className="w-1.5 h-1.5 bg-[#1F2529] rounded-sm" />
-              <div className="w-1.5 h-1.5 bg-[#FFA000] rounded-sm opacity-80" />
-              <div className="w-1.5 h-1.5 bg-[#1F2529] rounded-sm" />
-            </div>
-          </div>
-
-          {/* Food Cart on Right */}
-          <div className="absolute bottom-2 right-4 flex items-end gap-2">
-            <div className="relative">
-              <div className="w-14 h-4 bg-[#FFB300] rounded-t-md border-b-2 border-[#E65100]" />
-              <div className="w-14 h-8 bg-[#FFCA28] flex items-center justify-center">
-                <span className="text-[8px] font-bold text-[#E65100]">TEA</span>
-              </div>
-              <div className="flex justify-between px-1 -mt-1.5">
-                <div className="w-4 h-4 rounded-full bg-[#37474F] border-2 border-[#78909C]" />
-                <div className="w-4 h-4 rounded-full bg-[#37474F] border-2 border-[#78909C]" />
-              </div>
-            </div>
-            <div className="flex flex-col items-center">
-              <div className="w-3 h-3 rounded-full bg-[#FFCCBC]" />
-              <div className="w-4 h-6 bg-[#1E88E5] rounded-t-sm" />
-              <div className="w-3.5 h-6 bg-[#263238]" />
             </div>
           </div>
         </div>
@@ -233,7 +194,7 @@ export default function HomePage() {
         {/* ===================================================================== */}
         {/* 2. TOP SEARCH BAR */}
         {/* ===================================================================== */}
-        <div className="relative z-10 max-w-lg mx-auto mb-6">
+        <div className="relative z-10 max-w-lg mx-auto mb-5">
           <div
             onClick={() => router.push('/pay')}
             className="flex items-center justify-between gap-3 bg-[#1E1F24] hover:bg-[#282A30] border border-[#35383F] rounded-full px-4 py-2.5 shadow-md cursor-pointer transition-all active:scale-[0.99]"
@@ -264,16 +225,16 @@ export default function HomePage() {
         {/* ===================================================================== */}
         {/* 3. 4 PRIMARY ROYAL BLUE SQUIRCLES */}
         {/* ===================================================================== */}
-        <div className="relative z-10 max-w-lg mx-auto grid grid-cols-4 gap-2 text-center pt-2">
+        <div className="relative z-10 max-w-lg mx-auto grid grid-cols-4 gap-2 text-center pt-1 pb-1">
           {/* Action 1: Scan any QR code */}
           <div
             onClick={() => router.push('/qr')}
             className="flex flex-col items-center group cursor-pointer"
           >
-            <div className="w-16 h-16 rounded-[22px] bg-[#0B57D0] hover:bg-[#1A73E8] flex items-center justify-center text-white shadow-lg transition-transform active:scale-95">
-              <QrCode className="w-7 h-7" />
+            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-[20px] sm:rounded-[22px] bg-[#0B57D0] hover:bg-[#1A73E8] flex items-center justify-center text-white shadow-lg transition-transform active:scale-95">
+              <QrCode className="w-6 h-6 sm:w-7 sm:h-7" />
             </div>
-            <span className="text-xs font-normal text-[#E3E3E3] mt-2.5 leading-snug">
+            <span className="text-[11px] sm:text-xs font-normal text-[#E3E3E3] mt-2 leading-tight">
               Scan any<br />QR code
             </span>
           </div>
@@ -283,15 +244,15 @@ export default function HomePage() {
             onClick={() => router.push('/pay')}
             className="flex flex-col items-center group cursor-pointer"
           >
-            <div className="w-16 h-16 rounded-[22px] bg-[#0B57D0] hover:bg-[#1A73E8] flex items-center justify-center text-white shadow-lg transition-transform active:scale-95">
+            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-[20px] sm:rounded-[22px] bg-[#0B57D0] hover:bg-[#1A73E8] flex items-center justify-center text-white shadow-lg transition-transform active:scale-95">
               <div className="relative flex items-center justify-center">
-                <div className="w-6 h-7 rounded-[4px] border-2 border-white flex flex-col items-center justify-center text-[11px] font-bold">
+                <div className="w-5 h-6 sm:w-6 sm:h-7 rounded-[4px] border-2 border-white flex flex-col items-center justify-center text-[10px] sm:text-[11px] font-bold">
                   ₹
                 </div>
-                <ArrowUpRight className="w-3.5 h-3.5 text-white absolute -top-1 -right-1 stroke-[3]" />
+                <ArrowUpRight className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-white absolute -top-1 -right-1 stroke-[3]" />
               </div>
             </div>
-            <span className="text-xs font-normal text-[#E3E3E3] mt-2.5 leading-snug">
+            <span className="text-[11px] sm:text-xs font-normal text-[#E3E3E3] mt-2 leading-tight">
               Pay<br />anyone
             </span>
           </div>
@@ -301,10 +262,10 @@ export default function HomePage() {
             onClick={() => router.push('/transfer')}
             className="flex flex-col items-center group cursor-pointer"
           >
-            <div className="w-16 h-16 rounded-[22px] bg-[#0B57D0] hover:bg-[#1A73E8] flex items-center justify-center text-white shadow-lg transition-transform active:scale-95">
-              <Building2 className="w-7 h-7" />
+            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-[20px] sm:rounded-[22px] bg-[#0B57D0] hover:bg-[#1A73E8] flex items-center justify-center text-white shadow-lg transition-transform active:scale-95">
+              <Building2 className="w-6 h-6 sm:w-7 sm:h-7" />
             </div>
-            <span className="text-xs font-normal text-[#E3E3E3] mt-2.5 leading-snug">
+            <span className="text-[11px] sm:text-xs font-normal text-[#E3E3E3] mt-2 leading-tight">
               Bank<br />transfer
             </span>
           </div>
@@ -314,13 +275,13 @@ export default function HomePage() {
             onClick={() => setIsRechargeModalOpen(true)}
             className="flex flex-col items-center group cursor-pointer"
           >
-            <div className="w-16 h-16 rounded-[22px] bg-[#0B57D0] hover:bg-[#1A73E8] flex items-center justify-center text-white shadow-lg transition-transform active:scale-95">
+            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-[20px] sm:rounded-[22px] bg-[#0B57D0] hover:bg-[#1A73E8] flex items-center justify-center text-white shadow-lg transition-transform active:scale-95">
               <div className="relative flex items-center justify-center">
-                <Smartphone className="w-7 h-7" />
-                <Zap className="w-3.5 h-3.5 text-white fill-white absolute inset-0 m-auto" />
+                <Smartphone className="w-6 h-6 sm:w-7 sm:h-7" />
+                <Zap className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-white fill-white absolute inset-0 m-auto" />
               </div>
             </div>
-            <span className="text-xs font-normal text-[#E3E3E3] mt-2.5 leading-snug">
+            <span className="text-[11px] sm:text-xs font-normal text-[#E3E3E3] mt-2 leading-tight">
               Mobile<br />recharge
             </span>
           </div>
@@ -330,7 +291,7 @@ export default function HomePage() {
       {/* ========================================================================= */}
       {/* 4. 3 CAPSULE PILLS ROW (UPI Lite, Rewards, UPI ID) */}
       {/* ========================================================================= */}
-      <div className="max-w-lg mx-auto px-4 -mt-3 mb-6">
+      <div className="max-w-lg mx-auto px-4 mt-3 mb-6">
         <div className="flex items-center gap-2.5 overflow-x-auto no-scrollbar py-1">
           <div
             onClick={() => setIsLiteModalOpen(true)}
@@ -425,7 +386,7 @@ export default function HomePage() {
       </div>
 
       {/* ========================================================================= */}
-      {/* 6. "OFFERS & REWARDS" (Matching Screenshot 2 Exactly) */}
+      {/* 6. "OFFERS & REWARDS" (3 Gradient Badges + Loan Card) */}
       {/* ========================================================================= */}
       <div className="max-w-lg mx-auto px-4 space-y-4 mb-8">
         <h2 className="text-xl font-normal text-white px-1">Offers & rewards</h2>
@@ -466,58 +427,47 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Instant Loan Banner Card (Matching Screenshot 2) */}
+        {/* Instant Loan Banner Card (Clean Non-Overlapping Layout) */}
         <div
           onClick={() => setIsLoanModalOpen(true)}
-          className="w-full bg-[#1E1F24] hover:bg-[#282A30] border border-[#35383F] rounded-[28px] p-5 shadow-lg relative overflow-hidden cursor-pointer transition-all duration-200 group"
+          className="w-full bg-[#1E1F24] hover:bg-[#282A30] border border-[#35383F] rounded-[28px] p-5 shadow-lg flex items-center justify-between cursor-pointer transition-all duration-200 group gap-3"
         >
-          {/* Card Vector Art on the Right Side */}
-          <div className="absolute right-0 bottom-0 top-0 w-44 pointer-events-none flex items-end justify-end opacity-90">
-            <svg viewBox="0 0 160 120" className="w-full h-full">
-              {/* Hill and tree background */}
-              <path d="M40,60 Q90,20 160,50 L160,120 L40,120 Z" fill="#2E382E" />
-              {/* House */}
-              <polygon points="50,45 65,32 80,45" fill="#E53935" />
-              <rect x="52" y="45" width="26" height="22" fill="#ECEFF1" />
-              <rect x="60" y="52" width="10" height="15" fill="#37474F" />
-              {/* Car */}
-              <rect x="40" y="85" width="45" height="15" rx="5" fill="#1E88E5" />
-              <path d="M48,85 L55,73 L73,73 L80,85 Z" fill="#64B5F6" />
-              <circle cx="52" cy="100" r="5" fill="#212121" />
-              <circle cx="74" cy="100" r="5" fill="#212121" />
-              {/* Smartphone */}
-              <rect x="95" y="25" width="42" height="75" rx="8" fill="#ECEFF1" stroke="#37474F" strokeWidth="3" />
-              <rect x="100" y="35" width="32" height="42" rx="4" fill="#FFFFFF" />
-              <circle cx="116" cy="56" r="10" fill="#E3F2FD" />
-              {/* Bank Icon */}
-              <polygon points="116,48 108,53 124,53" fill="#1976D2" />
-              <rect x="110" y="53" width="3" height="6" fill="#1976D2" />
-              <rect x="115" y="53" width="3" height="6" fill="#1976D2" />
-              <rect x="119" y="53" width="3" height="6" fill="#1976D2" />
-              {/* Cash note */}
-              <rect x="102" y="80" width="28" height="12" rx="2" fill="#00C853" />
-              <circle cx="116" cy="86" r="3" fill="#FFFFFF" />
-            </svg>
-          </div>
-
-          <div className="relative z-10 max-w-[200px] space-y-1">
+          <div className="space-y-1 min-w-0 flex-1">
             <h3 className="text-base font-normal text-white leading-snug">
               Instant loan up to ₹40 lakh
             </h3>
             <p className="text-xs text-[#8E918F]">
               Interest rate starting at 9.99%
             </p>
-            <div className="pt-3">
+            <div className="pt-2">
               <span className="text-sm font-semibold text-[#A8C7FA] group-hover:underline">
                 Apply now
               </span>
             </div>
           </div>
+
+          {/* Card Vector Art Container */}
+          <div className="w-28 h-20 shrink-0 pointer-events-none flex items-center justify-end">
+            <svg viewBox="0 0 120 90" className="w-full h-full">
+              <rect x="10" y="55" width="40" height="15" rx="5" fill="#1E88E5" />
+              <path d="M18,55 L25,45 L40,45 L46,55 Z" fill="#64B5F6" />
+              <circle cx="20" cy="70" r="4" fill="#212121" />
+              <circle cx="42" cy="70" r="4" fill="#212121" />
+              <rect x="65" y="15" width="42" height="65" rx="8" fill="#ECEFF1" stroke="#37474F" strokeWidth="2.5" />
+              <rect x="70" y="24" width="32" height="35" rx="3" fill="#FFFFFF" />
+              <circle cx="86" cy="42" r="8" fill="#E3F2FD" />
+              <polygon points="86,36 80,40 92,40" fill="#1976D2" />
+              <rect x="82" y="40" width="2.5" height="5" fill="#1976D2" />
+              <rect x="85" y="40" width="2.5" height="5" fill="#1976D2" />
+              <rect x="88" y="40" width="2.5" height="5" fill="#1976D2" />
+              <rect x="72" y="63" width="28" height="10" rx="2" fill="#00C853" />
+            </svg>
+          </div>
         </div>
       </div>
 
       {/* ========================================================================= */}
-      {/* 7. "MANAGE YOUR MONEY" (Matching Screenshot 2 Exactly) */}
+      {/* 7. "MANAGE YOUR MONEY" (2 Cards + 3 Action Rows) */}
       {/* ========================================================================= */}
       <div className="max-w-lg mx-auto px-4 space-y-4 mb-8">
         <h2 className="text-xl font-normal text-white px-1">Manage your money</h2>
@@ -527,10 +477,10 @@ export default function HomePage() {
           {/* Card 1: Flex by Auto-UPI */}
           <div
             onClick={() => setIsFlexCardModalOpen(true)}
-            className="bg-[#1E1F24] hover:bg-[#282A30] border border-[#35383F] rounded-[28px] p-5 flex flex-col justify-between cursor-pointer transition-all duration-200 group min-h-[170px]"
+            className="bg-[#1E1F24] hover:bg-[#282A30] border border-[#35383F] rounded-[28px] p-4 sm:p-5 flex flex-col justify-between cursor-pointer transition-all duration-200 group min-h-[160px]"
           >
             <div>
-              <div className="w-8 h-8 rounded-full bg-[#20272B] flex items-center justify-center text-[#A8C7FA] mb-3">
+              <div className="w-8 h-8 rounded-full bg-[#20272B] flex items-center justify-center text-[#A8C7FA] mb-2.5">
                 <CreditCard className="w-5 h-5" />
               </div>
               <h3 className="text-sm font-normal text-white leading-tight">
@@ -541,7 +491,7 @@ export default function HomePage() {
               </p>
             </div>
 
-            <div className="pt-3">
+            <div className="pt-2">
               <span className="text-xs font-semibold text-[#A8C7FA] group-hover:underline">
                 Check details
               </span>
@@ -551,10 +501,10 @@ export default function HomePage() {
           {/* Card 2: Personal loan */}
           <div
             onClick={() => setIsLoanModalOpen(true)}
-            className="bg-[#1E1F24] hover:bg-[#282A30] border border-[#35383F] rounded-[28px] p-5 flex flex-col justify-between cursor-pointer transition-all duration-200 group min-h-[170px]"
+            className="bg-[#1E1F24] hover:bg-[#282A30] border border-[#35383F] rounded-[28px] p-4 sm:p-5 flex flex-col justify-between cursor-pointer transition-all duration-200 group min-h-[160px]"
           >
             <div>
-              <div className="w-8 h-8 rounded-full bg-[#20272B] flex items-center justify-center text-[#A8C7FA] mb-3">
+              <div className="w-8 h-8 rounded-full bg-[#20272B] flex items-center justify-center text-[#A8C7FA] mb-2.5">
                 <CircleDollarSign className="w-5 h-5" />
               </div>
               <h3 className="text-sm font-normal text-white leading-tight">
@@ -565,7 +515,7 @@ export default function HomePage() {
               </p>
             </div>
 
-            <div className="pt-3">
+            <div className="pt-2">
               <span className="text-xs font-semibold text-[#A8C7FA] group-hover:underline">
                 Check details
               </span>
@@ -573,16 +523,16 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* 3 Clean Flat Action Rows (Matching Screenshot 2 Exactly) */}
+        {/* 3 Clean Flat Action Rows */}
         <div className="divide-y divide-[#23252B]/80 pt-1">
           {/* Row 1: Check your CIBIL score for free */}
           <div
             onClick={() => setIsCibilModalOpen(true)}
-            className="flex items-center justify-between py-4 cursor-pointer hover:bg-[#1E1F24]/40 px-2 rounded-2xl transition-colors"
+            className="flex items-center justify-between py-3.5 cursor-pointer hover:bg-[#1E1F24]/40 px-2 rounded-2xl transition-colors"
           >
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3.5">
               <Gauge className="w-5 h-5 text-[#C4C7C5]" />
-              <span className="text-base font-normal text-white">Check your CIBIL score for free</span>
+              <span className="text-sm sm:text-base font-normal text-white">Check your CIBIL score for free</span>
             </div>
             <ChevronRight className="w-5 h-5 text-[#8E918F]" />
           </div>
@@ -590,11 +540,11 @@ export default function HomePage() {
           {/* Row 2: See transaction history */}
           <Link
             href="/activity"
-            className="flex items-center justify-between py-4 cursor-pointer hover:bg-[#1E1F24]/40 px-2 rounded-2xl transition-colors"
+            className="flex items-center justify-between py-3.5 cursor-pointer hover:bg-[#1E1F24]/40 px-2 rounded-2xl transition-colors"
           >
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3.5">
               <History className="w-5 h-5 text-[#C4C7C5]" />
-              <span className="text-base font-normal text-white">See transaction history</span>
+              <span className="text-sm sm:text-base font-normal text-white">See transaction history</span>
             </div>
             <ChevronRight className="w-5 h-5 text-[#8E918F]" />
           </Link>
@@ -606,11 +556,11 @@ export default function HomePage() {
               setUpiPin('');
               setIsCheckBalanceOpen(true);
             }}
-            className="flex items-center justify-between py-4 cursor-pointer hover:bg-[#1E1F24]/40 px-2 rounded-2xl transition-colors"
+            className="flex items-center justify-between py-3.5 cursor-pointer hover:bg-[#1E1F24]/40 px-2 rounded-2xl transition-colors"
           >
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3.5">
               <Landmark className="w-5 h-5 text-[#C4C7C5]" />
-              <span className="text-base font-normal text-white">Check bank balance</span>
+              <span className="text-sm sm:text-base font-normal text-white">Check bank balance</span>
             </div>
             <ChevronRight className="w-5 h-5 text-[#8E918F]" />
           </div>
@@ -620,7 +570,7 @@ export default function HomePage() {
       {/* ========================================================================= */}
       {/* 8. BOTTOM FOOTER */}
       {/* ========================================================================= */}
-      <div className="max-w-lg mx-auto px-4 text-center py-6 space-y-2 text-xs text-[#8E918F]">
+      <div className="max-w-lg mx-auto px-4 text-center py-4 space-y-2 text-xs text-[#8E918F]">
         <p>Showing all accounts linked to <span className="text-white font-mono">{userUpiId}</span></p>
         <div className="flex items-center justify-center gap-1.5 text-[11px] text-[#8E918F]">
           <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
