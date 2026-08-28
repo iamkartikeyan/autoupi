@@ -272,7 +272,7 @@ export default function HomePage() {
 
           {/* Action 4: Mobile recharge */}
           <div
-            onClick={() => setIsRechargeModalOpen(true)}
+            onClick={() => router.push('/recharge')}
             className="flex flex-col items-center group cursor-pointer"
           >
             <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-[20px] sm:rounded-[22px] bg-[#0B57D0] hover:bg-[#1A73E8] flex items-center justify-center text-white shadow-lg transition-transform active:scale-95">
