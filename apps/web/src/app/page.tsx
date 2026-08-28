@@ -6,11 +6,7 @@ import { useRouter } from 'next/navigation';
 import { usePayment } from '../context/PaymentContext';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
-import { PeopleSheet } from '../components/ui/PeopleSheet';
-import { ReceiptModal } from '../components/ui/ReceiptModal';
-import { OfferDetailModal } from '../components/ui/OfferDetailModal';
 import { ReferralShareSheet } from '../components/ui/ReferralShareSheet';
-import { Beneficiary, PaymentTransaction, OfferOrReward } from '@auto-upi/shared';
 import { 
   Search, 
   QrCode, 
@@ -39,7 +35,12 @@ import {
   Eye,
   EyeOff,
   Flame,
-  Plus
+  Plus,
+  BadgePercent,
+  CircleDollarSign,
+  Gauge,
+  Landmark,
+  ArrowRight
 } from 'lucide-react';
 
 export default function HomePage() {
@@ -56,18 +57,18 @@ export default function HomePage() {
   const { showToast } = useToast();
 
   const [searchQuery, setSearchQuery] = useState('');
-  const [isPeopleSheetOpen, setIsPeopleSheetOpen] = useState(false);
   const [isLiteModalOpen, setIsLiteModalOpen] = useState(false);
   const [isRechargeModalOpen, setIsRechargeModalOpen] = useState(false);
   const [isBillPayModalOpen, setIsBillPayModalOpen] = useState(false);
   const [selectedBillType, setSelectedBillType] = useState('Electricity');
+  
+  // Modals from new screenshot
+  const [isLoanModalOpen, setIsLoanModalOpen] = useState(false);
+  const [isFlexCardModalOpen, setIsFlexCardModalOpen] = useState(false);
+  const [isCibilModalOpen, setIsCibilModalOpen] = useState(false);
   const [isCheckBalanceOpen, setIsCheckBalanceOpen] = useState(false);
   const [upiPin, setUpiPin] = useState('');
   const [isBalanceRevealed, setIsBalanceRevealed] = useState(false);
-  const [selectedTransaction, setSelectedTransaction] = useState<PaymentTransaction | null>(null);
-  const [isReceiptOpen, setIsReceiptOpen] = useState(false);
-  const [selectedOffer, setSelectedOffer] = useState<OfferOrReward | null>(null);
-  const [isOfferModalOpen, setIsOfferModalOpen] = useState(false);
   const [isReferralSheetOpen, setIsReferralSheetOpen] = useState(false);
 
   const [rechargePhone, setRechargePhone] = useState('');
@@ -97,7 +98,7 @@ export default function HomePage() {
     showToast('Balance Fetched', `Available balance: ₹${(primaryAccount?.balance || 84250).toLocaleString('en-IN')}.00`, 'success');
   };
 
-  // 8 Exact Contacts matching Google Pay Theme
+  // 8 Exact Contacts matching Google Pay Theme (Screenshot 1)
   const PEOPLE_LIST = [
     {
       id: 'ben_kartikeyan',
@@ -163,17 +164,6 @@ export default function HomePage() {
     },
   ];
 
-  // Businesses & Bills List
-  const BUSINESS_LIST = [
-    { id: 'b1', name: 'Jio Prepaid', initial: 'J', bg: 'bg-[#0B57D0]', icon: Smartphone },
-    { id: 'b2', name: 'Airtel', initial: 'A', bg: 'bg-[#E53935]', icon: Smartphone },
-    { id: 'b3', name: 'Electricity', initial: '⚡', bg: 'bg-[#F57C00]', icon: Lightbulb },
-    { id: 'b4', name: 'Tata Play', initial: 'T', bg: 'bg-[#8E24AA]', icon: Tv },
-    { id: 'b5', name: 'Google Play', initial: 'G', bg: 'bg-[#00897B]', icon: Flame },
-    { id: 'b6', name: 'FASTag', initial: 'F', bg: 'bg-[#1E88E5]', icon: CreditCard },
-    { id: 'b7', name: 'Zomato', initial: 'Z', bg: 'bg-[#C2185B]', icon: Sparkles },
-  ];
-
   return (
     <div className="min-h-screen bg-[#0E0F12] text-[#E3E3E3] pb-24 select-none relative overflow-x-hidden">
       {/* ========================================================================= */}
@@ -187,7 +177,7 @@ export default function HomePage() {
             <path d="M0,110 C200,60 360,130 500,105 L500,160 L0,160 Z" fill="#07130D" opacity="1" />
           </svg>
 
-          {/* Bank Building on the Left Hill */}
+          {/* Bank Building on Left Hill */}
           <div className="absolute top-12 left-4 opacity-75">
             <svg viewBox="0 0 80 60" className="w-16 h-12 text-[#1B5E50]">
               <polygon points="40,5 5,22 75,22" fill="currentColor" />
@@ -199,7 +189,7 @@ export default function HomePage() {
             </svg>
           </div>
 
-          {/* Night City Buildings with Lit Windows */}
+          {/* Night City Buildings on Right */}
           <div className="absolute top-10 right-4 opacity-80 flex items-end gap-1.5">
             <div className="w-12 h-20 bg-[#161B1E] rounded-t-md p-1 grid grid-cols-2 gap-1">
               <div className="w-2 h-2 bg-[#FBC02D] rounded-sm opacity-90 shadow-[0_0_6px_#FBC02D]" />
@@ -220,7 +210,7 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Tea/Food Cart on Right */}
+          {/* Food Cart on Right */}
           <div className="absolute bottom-2 right-4 flex items-end gap-2">
             <div className="relative">
               <div className="w-14 h-4 bg-[#FFB300] rounded-t-md border-b-2 border-[#E65100]" />
@@ -435,179 +425,200 @@ export default function HomePage() {
       </div>
 
       {/* ========================================================================= */}
-      {/* 6. "BUSINESSES & BILLS" SECTION (Google Pay Merchant & Recharges) */}
-      {/* ========================================================================= */}
-      <div className="max-w-lg mx-auto px-4 space-y-4 mb-8">
-        <div className="flex items-center justify-between px-1">
-          <h2 className="text-xl font-normal text-white">Businesses</h2>
-          <button 
-            onClick={() => router.push('/pay')}
-            className="text-xs font-medium text-[#A8C7FA] hover:underline flex items-center gap-0.5"
-          >
-            <span>Explore</span>
-            <ChevronRight className="w-3.5 h-3.5" />
-          </button>
-        </div>
-
-        <div className="grid grid-cols-4 gap-y-6 gap-x-2 text-center">
-          {BUSINESS_LIST.map((b) => {
-            const Icon = b.icon;
-            return (
-              <div
-                key={b.id}
-                onClick={() => {
-                  setSelectedBillType(b.name);
-                  setIsBillPayModalOpen(true);
-                }}
-                className="flex flex-col items-center group cursor-pointer"
-              >
-                <div className={`w-14 h-14 rounded-full ${b.bg} text-white flex items-center justify-center text-lg font-bold shadow-md group-hover:scale-105 transition-transform`}>
-                  {b.initial}
-                </div>
-                <span className="text-xs font-normal text-[#E3E3E3] mt-2 leading-tight truncate max-w-[76px]">
-                  {b.name}
-                </span>
-              </div>
-            );
-          })}
-
-          <div
-            onClick={() => setIsBillPayModalOpen(true)}
-            className="flex flex-col items-center group cursor-pointer"
-          >
-            <div className="w-14 h-14 rounded-full bg-[#1E1F24] hover:bg-[#282A30] border border-[#35383F] flex items-center justify-center text-white group-hover:scale-105 transition-transform shadow-md">
-              <ChevronDown className="w-6 h-6 text-white" />
-            </div>
-            <span className="text-xs font-normal text-[#E3E3E3] mt-2 leading-tight">
-              More
-            </span>
-          </div>
-        </div>
-      </div>
-
-      {/* ========================================================================= */}
-      {/* 7. "OFFERS & REWARDS" PROMO TILES */}
+      {/* 6. "OFFERS & REWARDS" (Matching Screenshot 2 Exactly) */}
       {/* ========================================================================= */}
       <div className="max-w-lg mx-auto px-4 space-y-4 mb-8">
         <h2 className="text-xl font-normal text-white px-1">Offers & rewards</h2>
 
-        <div className="grid grid-cols-3 gap-3">
-          {/* Tile 1: Rewards */}
-          <Link
-            href="/rewards"
-            className="p-3.5 rounded-[24px] bg-[#2D1E3A] hover:bg-[#382649] transition-all flex flex-col justify-between group"
-          >
-            <div className="w-10 h-10 rounded-full bg-purple-900/60 flex items-center justify-center text-[#D0BCFF] mb-3">
-              <Trophy className="w-5 h-5" />
+        {/* 3 Circular Badges (Rewards, Offers, Referrals) */}
+        <div className="flex items-center gap-6 px-2">
+          {/* Rewards Badge (Gold) */}
+          <Link href="/rewards" className="flex flex-col items-center group select-none">
+            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#FFD54F] via-[#FFA000] to-[#FF8F00] p-0.5 shadow-lg group-hover:scale-105 transition-transform">
+              <div className="w-full h-full rounded-full bg-gradient-to-b from-[#FFA726] to-[#FB8C00] flex items-center justify-center text-white">
+                <Trophy className="w-8 h-8 fill-yellow-200 text-yellow-100" />
+              </div>
             </div>
-            <div>
-              <p className="text-xs font-medium text-white">Rewards</p>
-              <p className="text-[11px] text-[#D0BCFF] mt-0.5 font-semibold">₹1,248 won</p>
-            </div>
+            <span className="text-xs font-normal text-white mt-2">Rewards</span>
           </Link>
 
-          {/* Tile 2: Offers */}
-          <Link
-            href="/offers"
-            className="p-3.5 rounded-[24px] bg-[#162E33] hover:bg-[#1E3E45] transition-all flex flex-col justify-between group"
-          >
-            <div className="w-10 h-10 rounded-full bg-teal-900/60 flex items-center justify-center text-[#A8C7FA] mb-3">
-              <Tag className="w-5 h-5" />
+          {/* Offers Badge (Pink/Red Tag) */}
+          <Link href="/offers" className="flex flex-col items-center group select-none">
+            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#FF4081] via-[#E91E63] to-[#C2185B] p-0.5 shadow-lg group-hover:scale-105 transition-transform">
+              <div className="w-full h-full rounded-full bg-gradient-to-b from-[#EC407A] to-[#D81B60] flex items-center justify-center text-white">
+                <Tag className="w-8 h-8 fill-pink-100 text-white" />
+              </div>
             </div>
-            <div>
-              <p className="text-xs font-medium text-white">Offers</p>
-              <p className="text-[11px] text-[#A8C7FA] mt-0.5 font-semibold">32 active</p>
-            </div>
+            <span className="text-xs font-normal text-white mt-2">Offers</span>
           </Link>
 
-          {/* Tile 3: Referrals */}
+          {/* Referrals Badge (Blue Dual Phones) */}
           <div
             onClick={() => setIsReferralSheetOpen(true)}
-            className="p-3.5 rounded-[24px] bg-[#1E2530] hover:bg-[#262F3D] transition-all flex flex-col justify-between group cursor-pointer"
+            className="flex flex-col items-center group cursor-pointer select-none"
           >
-            <div className="w-10 h-10 rounded-full bg-blue-900/60 flex items-center justify-center text-[#A8C7FA] mb-3">
-              <Users className="w-5 h-5" />
+            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#42A5F5] via-[#1E88E5] to-[#1565C0] p-0.5 shadow-lg group-hover:scale-105 transition-transform">
+              <div className="w-full h-full rounded-full bg-gradient-to-b from-[#29B6F6] to-[#0288D1] flex items-center justify-center text-white">
+                <Users className="w-8 h-8 fill-blue-100 text-white" />
+              </div>
             </div>
-            <div>
-              <p className="text-xs font-medium text-white">Referrals</p>
-              <p className="text-[11px] text-[#A8C7FA] mt-0.5 font-semibold">Get ₹121</p>
+            <span className="text-xs font-normal text-white mt-2">Referrals</span>
+          </div>
+        </div>
+
+        {/* Instant Loan Banner Card (Matching Screenshot 2) */}
+        <div
+          onClick={() => setIsLoanModalOpen(true)}
+          className="w-full bg-[#1E1F24] hover:bg-[#282A30] border border-[#35383F] rounded-[28px] p-5 shadow-lg relative overflow-hidden cursor-pointer transition-all duration-200 group"
+        >
+          {/* Card Vector Art on the Right Side */}
+          <div className="absolute right-0 bottom-0 top-0 w-44 pointer-events-none flex items-end justify-end opacity-90">
+            <svg viewBox="0 0 160 120" className="w-full h-full">
+              {/* Hill and tree background */}
+              <path d="M40,60 Q90,20 160,50 L160,120 L40,120 Z" fill="#2E382E" />
+              {/* House */}
+              <polygon points="50,45 65,32 80,45" fill="#E53935" />
+              <rect x="52" y="45" width="26" height="22" fill="#ECEFF1" />
+              <rect x="60" y="52" width="10" height="15" fill="#37474F" />
+              {/* Car */}
+              <rect x="40" y="85" width="45" height="15" rx="5" fill="#1E88E5" />
+              <path d="M48,85 L55,73 L73,73 L80,85 Z" fill="#64B5F6" />
+              <circle cx="52" cy="100" r="5" fill="#212121" />
+              <circle cx="74" cy="100" r="5" fill="#212121" />
+              {/* Smartphone */}
+              <rect x="95" y="25" width="42" height="75" rx="8" fill="#ECEFF1" stroke="#37474F" strokeWidth="3" />
+              <rect x="100" y="35" width="32" height="42" rx="4" fill="#FFFFFF" />
+              <circle cx="116" cy="56" r="10" fill="#E3F2FD" />
+              {/* Bank Icon */}
+              <polygon points="116,48 108,53 124,53" fill="#1976D2" />
+              <rect x="110" y="53" width="3" height="6" fill="#1976D2" />
+              <rect x="115" y="53" width="3" height="6" fill="#1976D2" />
+              <rect x="119" y="53" width="3" height="6" fill="#1976D2" />
+              {/* Cash note */}
+              <rect x="102" y="80" width="28" height="12" rx="2" fill="#00C853" />
+              <circle cx="116" cy="86" r="3" fill="#FFFFFF" />
+            </svg>
+          </div>
+
+          <div className="relative z-10 max-w-[200px] space-y-1">
+            <h3 className="text-base font-normal text-white leading-snug">
+              Instant loan up to ₹40 lakh
+            </h3>
+            <p className="text-xs text-[#8E918F]">
+              Interest rate starting at 9.99%
+            </p>
+            <div className="pt-3">
+              <span className="text-sm font-semibold text-[#A8C7FA] group-hover:underline">
+                Apply now
+              </span>
             </div>
           </div>
         </div>
       </div>
 
       {/* ========================================================================= */}
-      {/* 8. "MANAGE YOUR MONEY" (Check Balance, CIBIL Score, Transaction History) */}
+      {/* 7. "MANAGE YOUR MONEY" (Matching Screenshot 2 Exactly) */}
       {/* ========================================================================= */}
       <div className="max-w-lg mx-auto px-4 space-y-4 mb-8">
         <h2 className="text-xl font-normal text-white px-1">Manage your money</h2>
 
-        <div className="divide-y divide-[#23252B] bg-[#16171B] border border-[#2D3039] rounded-[28px] overflow-hidden">
-          {/* Row 1: Check Bank Balance */}
+        {/* 2 Side-by-Side Cards (Flex by Auto-UPI & Personal Loan) */}
+        <div className="grid grid-cols-2 gap-3">
+          {/* Card 1: Flex by Auto-UPI */}
+          <div
+            onClick={() => setIsFlexCardModalOpen(true)}
+            className="bg-[#1E1F24] hover:bg-[#282A30] border border-[#35383F] rounded-[28px] p-5 flex flex-col justify-between cursor-pointer transition-all duration-200 group min-h-[170px]"
+          >
+            <div>
+              <div className="w-8 h-8 rounded-full bg-[#20272B] flex items-center justify-center text-[#A8C7FA] mb-3">
+                <CreditCard className="w-5 h-5" />
+              </div>
+              <h3 className="text-sm font-normal text-white leading-tight">
+                Flex by Auto-UPI
+              </h3>
+              <p className="text-xs text-[#8E918F] mt-1 leading-snug">
+                UPI credit card made simple
+              </p>
+            </div>
+
+            <div className="pt-3">
+              <span className="text-xs font-semibold text-[#A8C7FA] group-hover:underline">
+                Check details
+              </span>
+            </div>
+          </div>
+
+          {/* Card 2: Personal loan */}
+          <div
+            onClick={() => setIsLoanModalOpen(true)}
+            className="bg-[#1E1F24] hover:bg-[#282A30] border border-[#35383F] rounded-[28px] p-5 flex flex-col justify-between cursor-pointer transition-all duration-200 group min-h-[170px]"
+          >
+            <div>
+              <div className="w-8 h-8 rounded-full bg-[#20272B] flex items-center justify-center text-[#A8C7FA] mb-3">
+                <CircleDollarSign className="w-5 h-5" />
+              </div>
+              <h3 className="text-sm font-normal text-white leading-tight">
+                Personal loan
+              </h3>
+              <p className="text-xs text-[#8E918F] mt-1 leading-snug">
+                Up to ₹40 lakh, instant approval
+              </p>
+            </div>
+
+            <div className="pt-3">
+              <span className="text-xs font-semibold text-[#A8C7FA] group-hover:underline">
+                Check details
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* 3 Clean Flat Action Rows (Matching Screenshot 2 Exactly) */}
+        <div className="divide-y divide-[#23252B]/80 pt-1">
+          {/* Row 1: Check your CIBIL score for free */}
+          <div
+            onClick={() => setIsCibilModalOpen(true)}
+            className="flex items-center justify-between py-4 cursor-pointer hover:bg-[#1E1F24]/40 px-2 rounded-2xl transition-colors"
+          >
+            <div className="flex items-center gap-4">
+              <Gauge className="w-5 h-5 text-[#C4C7C5]" />
+              <span className="text-base font-normal text-white">Check your CIBIL score for free</span>
+            </div>
+            <ChevronRight className="w-5 h-5 text-[#8E918F]" />
+          </div>
+
+          {/* Row 2: See transaction history */}
+          <Link
+            href="/activity"
+            className="flex items-center justify-between py-4 cursor-pointer hover:bg-[#1E1F24]/40 px-2 rounded-2xl transition-colors"
+          >
+            <div className="flex items-center gap-4">
+              <History className="w-5 h-5 text-[#C4C7C5]" />
+              <span className="text-base font-normal text-white">See transaction history</span>
+            </div>
+            <ChevronRight className="w-5 h-5 text-[#8E918F]" />
+          </Link>
+
+          {/* Row 3: Check bank balance */}
           <div
             onClick={() => {
               setIsBalanceRevealed(false);
               setUpiPin('');
               setIsCheckBalanceOpen(true);
             }}
-            className="flex items-center justify-between p-4 cursor-pointer hover:bg-[#1E1F24] transition-colors"
+            className="flex items-center justify-between py-4 cursor-pointer hover:bg-[#1E1F24]/40 px-2 rounded-2xl transition-colors"
           >
-            <div className="flex items-center gap-3.5">
-              <div className="w-9 h-9 rounded-full bg-[#1E1F24] flex items-center justify-center text-[#A8C7FA]">
-                <Building2 className="w-5 h-5" />
-              </div>
-              <div>
-                <span className="text-sm font-normal text-white">Check bank balance</span>
-                <p className="text-xs text-[#8E918F]">
-                  State Bank of India ••••6492
-                </p>
-              </div>
+            <div className="flex items-center gap-4">
+              <Landmark className="w-5 h-5 text-[#C4C7C5]" />
+              <span className="text-base font-normal text-white">Check bank balance</span>
             </div>
-            <ChevronRight className="w-4 h-4 text-[#8E918F]" />
+            <ChevronRight className="w-5 h-5 text-[#8E918F]" />
           </div>
-
-          {/* Row 2: CIBIL Score */}
-          <div
-            onClick={() => showToast('Credit Score', 'Your CIBIL score is 769 (Excellent) • Updated today', 'info')}
-            className="flex items-center justify-between p-4 cursor-pointer hover:bg-[#1E1F24] transition-colors"
-          >
-            <div className="flex items-center gap-3.5">
-              <div className="w-9 h-9 rounded-full bg-[#1E1F24] flex items-center justify-center text-[#34D399]">
-                <TrendingUp className="w-5 h-5" />
-              </div>
-              <div>
-                <span className="text-sm font-normal text-white">Check your CIBIL score for free</span>
-                <p className="text-xs text-[#34D399] font-medium">
-                  769 • Excellent
-                </p>
-              </div>
-            </div>
-            <ChevronRight className="w-4 h-4 text-[#8E918F]" />
-          </div>
-
-          {/* Row 3: Transaction History */}
-          <Link
-            href="/activity"
-            className="flex items-center justify-between p-4 cursor-pointer hover:bg-[#1E1F24] transition-colors"
-          >
-            <div className="flex items-center gap-3.5">
-              <div className="w-9 h-9 rounded-full bg-[#1E1F24] flex items-center justify-center text-[#A8C7FA]">
-                <History className="w-5 h-5" />
-              </div>
-              <div>
-                <span className="text-sm font-normal text-white">See transaction history</span>
-                <p className="text-xs text-[#8E918F]">
-                  View all debits, credits and receipts
-                </p>
-              </div>
-            </div>
-            <ChevronRight className="w-4 h-4 text-[#8E918F]" />
-          </Link>
         </div>
       </div>
 
       {/* ========================================================================= */}
-      {/* 9. BOTTOM FOOTER (Showing all accounts linked to UPI) */}
+      {/* 8. BOTTOM FOOTER */}
       {/* ========================================================================= */}
       <div className="max-w-lg mx-auto px-4 text-center py-6 space-y-2 text-xs text-[#8E918F]">
         <p>Showing all accounts linked to <span className="text-white font-mono">{userUpiId}</span></p>
@@ -673,52 +684,247 @@ export default function HomePage() {
       )}
 
       {/* ========================================================================= */}
-      {/* MODAL: BILL PAYMENT */}
+      {/* MODAL: PERSONAL LOAN APPLICATION */}
       {/* ========================================================================= */}
-      {isBillPayModalOpen && (
+      {isLoanModalOpen && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-md animate-in fade-in">
           <div className="w-full max-w-md bg-[#1E1F24] border-t sm:border border-[#35383F] rounded-t-[32px] sm:rounded-[32px] p-6 text-white shadow-2xl">
             <div className="w-12 h-1 bg-[#444746] rounded-full mx-auto mb-4 sm:hidden" />
             <div className="flex justify-between items-center pb-3 border-b border-[#2D3039]">
               <div className="flex items-center gap-2.5">
-                <Receipt className="w-5 h-5 text-[#A8C7FA]" />
-                <h3 className="text-base font-normal text-white">Pay {selectedBillType} Bill</h3>
+                <CircleDollarSign className="w-5 h-5 text-[#A8C7FA]" />
+                <h3 className="text-base font-normal text-white">Instant Personal Loan</h3>
               </div>
-              <button onClick={() => setIsBillPayModalOpen(false)} className="p-1 text-[#8E918F] hover:text-white">
+              <button onClick={() => setIsLoanModalOpen(false)} className="p-1 text-[#8E918F] hover:text-white">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="py-4 space-y-4">
-              <div>
-                <label className="text-xs text-[#8E918F]">Consumer Number / Account ID</label>
-                <input
-                  type="text"
-                  placeholder="e.g. 1029384756"
-                  className="w-full mt-1 px-4 py-3 rounded-2xl bg-[#16171B] border border-[#35383F] focus:border-[#A8C7FA] text-sm text-white focus:outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="text-xs text-[#8E918F]">Amount to Pay</label>
-                <input
-                  type="number"
-                  defaultValue="1450"
-                  className="w-full mt-1 px-4 py-3 rounded-2xl bg-[#16171B] border border-[#35383F] focus:border-[#A8C7FA] text-sm text-white focus:outline-none"
-                />
+            <div className="py-4 space-y-4 text-xs text-[#C4C7C5]">
+              <div className="p-4 rounded-2xl bg-[#16171B] border border-[#2D3039] space-y-2">
+                <div className="flex justify-between">
+                  <span className="text-[#8E918F]">Pre-approved Limit</span>
+                  <span className="text-white font-bold text-sm">Up to ₹40,00,000</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-[#8E918F]">Interest Rate</span>
+                  <span className="text-emerald-400 font-semibold">9.99% p.a.</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-[#8E918F]">Disbursal Time</span>
+                  <span className="text-white font-medium">Under 2 minutes via UPI</span>
+                </div>
               </div>
 
               <button
                 type="button"
                 onClick={() => {
-                  setIsBillPayModalOpen(false);
-                  showToast('Bill Paid', `₹1,450 paid for ${selectedBillType} bill`, 'success');
+                  setIsLoanModalOpen(false);
+                  showToast('Application Submitted', 'Your pre-approved ₹5,00,000 loan offer is ready for disbursement', 'success');
                 }}
-                className="w-full py-3.5 rounded-full bg-[#A8C7FA] hover:bg-[#C2E7FF] text-[#041E49] font-semibold text-sm transition-colors mt-2"
+                className="w-full py-3.5 rounded-full bg-[#A8C7FA] hover:bg-[#C2E7FF] text-[#041E49] font-semibold text-sm transition-colors"
               >
-                Pay Bill & Get ₹25 Cashback
+                Apply & Disburse in 2 Mins
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* MODAL: FLEX CREDIT CARD */}
+      {/* ========================================================================= */}
+      {isFlexCardModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-md animate-in fade-in">
+          <div className="w-full max-w-md bg-[#1E1F24] border-t sm:border border-[#35383F] rounded-t-[32px] sm:rounded-[32px] p-6 text-white shadow-2xl">
+            <div className="w-12 h-1 bg-[#444746] rounded-full mx-auto mb-4 sm:hidden" />
+            <div className="flex justify-between items-center pb-3 border-b border-[#2D3039]">
+              <div className="flex items-center gap-2.5">
+                <CreditCard className="w-5 h-5 text-[#A8C7FA]" />
+                <h3 className="text-base font-normal text-white">Flex by Auto-UPI</h3>
+              </div>
+              <button onClick={() => setIsFlexCardModalOpen(false)} className="p-1 text-[#8E918F] hover:text-white">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="py-4 space-y-4 text-xs text-[#C4C7C5]">
+              <p>Link your RuPay Credit Card to UPI and pay anywhere with zero merchant surcharge.</p>
+              <div className="p-4 rounded-2xl bg-gradient-to-r from-[#004A77] to-[#0B57D0] text-white p-4 space-y-3 shadow-lg">
+                <div className="flex justify-between items-center">
+                  <span className="font-bold text-sm tracking-wider">RuPay UPI Credit</span>
+                  <Zap className="w-4 h-4 fill-white" />
+                </div>
+                <div className="font-mono text-base tracking-widest">•••• •••• •••• 9921</div>
+                <div className="flex justify-between text-[11px] opacity-80">
+                  <span>LIMIT: ₹1,50,000</span>
+                  <span>EXP: 09/29</span>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setIsFlexCardModalOpen(false);
+                  showToast('Card Linked', 'RuPay Flex Credit line activated on your UPI ID', 'success');
+                }}
+                className="w-full py-3.5 rounded-full bg-[#A8C7FA] hover:bg-[#C2E7FF] text-[#041E49] font-semibold text-sm transition-colors"
+              >
+                Link Card to UPI
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* MODAL: FREE CIBIL SCORE REPORT */}
+      {/* ========================================================================= */}
+      {isCibilModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-md animate-in fade-in">
+          <div className="w-full max-w-md bg-[#1E1F24] border-t sm:border border-[#35383F] rounded-t-[32px] sm:rounded-[32px] p-6 text-white shadow-2xl">
+            <div className="w-12 h-1 bg-[#444746] rounded-full mx-auto mb-4 sm:hidden" />
+            <div className="flex justify-between items-center pb-3 border-b border-[#2D3039]">
+              <div className="flex items-center gap-2.5">
+                <Gauge className="w-5 h-5 text-[#34D399]" />
+                <h3 className="text-base font-normal text-white">Your CIBIL Credit Score</h3>
+              </div>
+              <button onClick={() => setIsCibilModalOpen(false)} className="p-1 text-[#8E918F] hover:text-white">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="py-4 text-center space-y-4">
+              <div className="inline-block p-6 rounded-full bg-[#16171B] border-4 border-emerald-500/40">
+                <span className="text-4xl font-extrabold text-emerald-400 font-mono">769</span>
+                <p className="text-xs text-[#8E918F] mt-1 font-medium">EXCELLENT</p>
+              </div>
+
+              <div className="text-xs text-[#C4C7C5] space-y-2 text-left bg-[#16171B] p-4 rounded-2xl border border-[#2D3039]">
+                <div className="flex justify-between">
+                  <span className="text-[#8E918F]">On-Time Payments:</span>
+                  <span className="text-white font-semibold">100%</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-[#8E918F]">Credit Utilization:</span>
+                  <span className="text-white font-semibold">12%</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-[#8E918F]">Credit Age:</span>
+                  <span className="text-white font-semibold">4 yrs 2 mos</span>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setIsCibilModalOpen(false)}
+                className="w-full py-3.5 rounded-full bg-[#A8C7FA] hover:bg-[#C2E7FF] text-[#041E49] font-semibold text-sm transition-colors"
+              >
+                Close Report
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* MODAL: MOBILE RECHARGE */}
+      {/* ========================================================================= */}
+      {isRechargeModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-md animate-in fade-in">
+          <div className="w-full max-w-md bg-[#1E1F24] border-t sm:border border-[#35383F] rounded-t-[32px] sm:rounded-[32px] p-6 text-white shadow-2xl">
+            <div className="w-12 h-1 bg-[#444746] rounded-full mx-auto mb-4 sm:hidden" />
+            <div className="flex justify-between items-center pb-3 border-b border-[#2D3039]">
+              <div className="flex items-center gap-2.5">
+                <Smartphone className="w-5 h-5 text-[#A8C7FA]" />
+                <h3 className="text-base font-normal text-white">Mobile Recharge</h3>
+              </div>
+              <button onClick={() => setIsRechargeModalOpen(false)} className="p-1 text-[#8E918F] hover:text-white">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleRechargeSubmit} className="py-4 space-y-4">
+              <div>
+                <label className="text-xs text-[#8E918F]">Mobile Number</label>
+                <input
+                  type="tel"
+                  required
+                  placeholder="+91 98765 43210"
+                  value={rechargePhone}
+                  onChange={(e) => setRechargePhone(e.target.value)}
+                  className="w-full mt-1 px-4 py-3 rounded-2xl bg-[#16171B] border border-[#35383F] focus:border-[#A8C7FA] text-sm text-white focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs text-[#8E918F]">Select Plan</label>
+                <div className="grid grid-cols-3 gap-2 mt-1">
+                  {['299', '479', '719'].map((plan) => (
+                    <button
+                      key={plan}
+                      type="button"
+                      onClick={() => setRechargeAmount(plan)}
+                      className={`p-2.5 rounded-2xl border text-xs font-semibold ${
+                        rechargeAmount === plan
+                          ? 'bg-[#004A77] border-[#A8C7FA] text-white'
+                          : 'bg-[#16171B] border-[#35383F] text-[#C4C7C5]'
+                      }`}
+                    >
+                      ₹{plan}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                className="w-full py-3.5 rounded-full bg-[#A8C7FA] hover:bg-[#C2E7FF] text-[#041E49] font-semibold text-sm transition-colors mt-2"
+              >
+                Proceed to Pay ₹{rechargeAmount}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* MODAL: UPI LITE ACTIVATION */}
+      {/* ========================================================================= */}
+      {isLiteModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-md animate-in fade-in">
+          <div className="w-full max-w-md bg-[#1E1F24] border-t sm:border border-[#35383F] rounded-t-[32px] sm:rounded-[32px] p-6 text-white shadow-2xl">
+            <div className="w-12 h-1 bg-[#444746] rounded-full mx-auto mb-4 sm:hidden" />
+            <div className="flex justify-between items-center pb-3 border-b border-[#2D3039]">
+              <div className="flex items-center gap-2.5">
+                <Rocket className="w-5 h-5 text-[#A8C7FA]" />
+                <h3 className="text-base font-normal text-white">Activate UPI Lite</h3>
+              </div>
+              <button onClick={() => setIsLiteModalOpen(false)} className="p-1 text-[#8E918F] hover:text-white">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="py-4 space-y-3 text-xs text-[#C4C7C5]">
+              <p>Pay up to ₹500 instantly without entering your UPI PIN every time. Super fast 1-click payments.</p>
+              <div className="p-3.5 rounded-2xl bg-[#16171B] border border-[#2D3039] flex items-center justify-between">
+                <div>
+                  <span className="text-white font-medium">Add balance to UPI Lite</span>
+                  <p className="text-[#8E918F] text-[11px]">Deducted from State Bank of India ••••6492</p>
+                </div>
+                <span className="text-sm font-bold text-white">₹500</span>
+              </div>
+            </div>
+
+            <button
+              onClick={() => {
+                setIsLiteModalOpen(false);
+                showToast('UPI Lite Activated', '₹500 added to your PIN-free Lite wallet', 'success');
+              }}
+              className="w-full py-3.5 rounded-full bg-[#A8C7FA] hover:bg-[#C2E7FF] text-[#041E49] font-semibold text-sm transition-colors"
+            >
+              Add ₹500 & Activate Lite
+            </button>
           </div>
         </div>
       )}
