@@ -234,3 +234,4 @@ export class SimulatedBankService {
 }
 
 export const bankService = new SimulatedBankService();
+export const bankEscrowService = bankService;

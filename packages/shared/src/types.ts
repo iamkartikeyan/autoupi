@@ -147,6 +147,7 @@ export type PaymentStatus =
   | 'CANCELLED'
   // Legacy / UI Aliases
   | 'INITIATED'
+  | 'PROCESSING'
   | 'BLOCKCHAIN_SETTLED'
   | 'FAILED';
 

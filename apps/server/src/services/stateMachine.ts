@@ -32,11 +32,13 @@ export const LEGAL_TRANSITIONS: Record<PaymentStatus, PaymentStatus[]> = {
   REFUNDED: [],
   CANCELLED: [],
   FAILED: ['REFUND_PENDING', 'REFUNDED'],
+  PROCESSING: ['RECIPIENT_CREDITED', 'COMPLETED', 'PAYOUT_FAILED', 'REFUNDED', 'FAILED'],
 };
 
 export const STEP_DESCRIPTIONS: Record<PaymentStatus, { title: string; desc: string }> = {
   CREATED: { title: 'Payment Created', desc: 'Order initialized and awaiting authentication' },
   INITIATED: { title: 'Payment Initiated', desc: 'Payment order registered' },
+  PROCESSING: { title: 'Payment Processing', desc: 'Clearing and settlement in progress' },
   AUTHENTICATING: { title: 'Authenticating 2FA', desc: 'Verifying user credentials and device integrity' },
   KYC_CHECK: { title: 'KYC Compliance Verified', desc: 'Sender identity checked against global sanctions' },
   AML_CHECK: { title: 'AML Rules Evaluated', desc: 'Anti-money laundering risk assessment completed' },
