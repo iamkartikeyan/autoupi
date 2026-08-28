@@ -21,6 +21,7 @@ export default function PayAnyonePage() {
   const { beneficiaries } = usePayment();
   const { showToast } = useToast();
   const [searchQuery, setSearchQuery] = useState('');
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   // Default seed list matching Screenshot 3
   const defaultRecents = [
@@ -89,7 +90,10 @@ export default function PayAnyonePage() {
         >
           <ChevronLeft className="w-6 h-6" />
         </button>
-        <button className="p-1 rounded-full hover:bg-white/10 text-white transition-colors">
+        <button
+          onClick={() => setIsMenuOpen(true)}
+          className="p-1 rounded-full hover:bg-white/10 text-white transition-colors"
+        >
           <MoreVertical className="w-5 h-5" />
         </button>
       </div>
@@ -204,8 +208,7 @@ export default function PayAnyonePage() {
                 <div className="w-10 h-10 rounded-full bg-pink-700 flex items-center justify-center text-white font-medium text-sm shrink-0">
                   {ben.initials}
                 </div>
-              )}
-
+              )}\n
               <div className="min-w-0 flex-1">
                 <h3 className="text-sm font-normal text-white truncate">{ben.name}</h3>
                 <p className="text-xs text-[#8E918F] font-mono truncate">
@@ -216,6 +219,41 @@ export default function PayAnyonePage() {
           ))}
         </div>
       </div>
+
+      {/* Pay Page Context Menu */}
+      {isMenuOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-end justify-center bg-black/70 backdrop-blur-sm animate-in fade-in"
+          onClick={() => setIsMenuOpen(false)}
+        >
+          <div
+            className="w-full max-w-sm bg-[#1E1F24] border-t border-[#35383F] rounded-t-[32px] p-5 space-y-1"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="w-10 h-1 bg-[#444746] rounded-full mx-auto mb-4" />
+            {[
+              { label: 'Add new beneficiary', action: () => { setIsMenuOpen(false); showToast('Add Contact', 'Enter UPI ID or number above to add', 'info'); } },
+              { label: 'Scan QR code', action: () => { setIsMenuOpen(false); router.push('/qr'); } },
+              { label: 'Transaction history', action: () => { setIsMenuOpen(false); router.push('/activity'); } },
+              { label: 'Bank transfer (NEFT/IMPS)', action: () => { setIsMenuOpen(false); router.push('/transfer'); } },
+            ].map((item) => (
+              <button
+                key={item.label}
+                onClick={item.action}
+                className="w-full text-left px-4 py-3.5 rounded-2xl hover:bg-[#282A30] text-sm text-white transition-colors"
+              >
+                {item.label}
+              </button>
+            ))}
+            <button
+              onClick={() => setIsMenuOpen(false)}
+              className="w-full text-center px-4 py-3 rounded-2xl text-sm text-[#8E918F] mt-1"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

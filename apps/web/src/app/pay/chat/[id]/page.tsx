@@ -45,64 +45,74 @@ export default function PaymentChatPage() {
     const existing = beneficiaries.find((b) => b.id === beneficiaryId);
     if (existing) return existing;
 
-    if (beneficiaryId === 'ben_rahul') {
-      return {
-        id: 'ben_rahul',
-        userId: 'usr_demo_02',
-        name: 'Mr RAHUL SATYENDRA KUMAR',
-        upiIdOrHandle: '9582320234@slc',
-        bankName: 'State Bank of India',
-        accountNumberMasked: '••••0234',
-        routingIdentifier: 'SBIN0009582',
-        country: 'India',
-        countryCode: 'IN',
-        currency: 'INR',
-        flagEmoji: '🇮🇳',
-        initials: 'M',
-        phoneOrEmail: '+91 95823 20234',
-        verificationState: 'VERIFIED',
-        isFavorite: true
-      };
-    }
-
-    if (beneficiaryId === 'ben_abhishek') {
-      return {
-        id: 'ben_abhishek',
-        userId: 'usr_demo_03',
-        name: 'ABHISHEK',
-        upiIdOrHandle: '7678573087@axl',
-        bankName: 'Axis Bank',
-        accountNumberMasked: '••••3087',
-        routingIdentifier: 'UTIB0007678',
-        country: 'India',
-        countryCode: 'IN',
-        currency: 'INR',
-        flagEmoji: '🇮🇳',
-        initials: 'A',
-        phoneOrEmail: '+91 76785 73087',
-        verificationState: 'VERIFIED',
-        isFavorite: true
-      };
-    }
-
-    // Default Praveen Kumar (Screenshot 1)
-    return {
-      id: 'ben_praveen',
-      userId: 'usr_demo_01',
-      name: 'Praveen Kumar',
-      upiIdOrHandle: '9315896154@ptaxis',
-      bankName: 'Paytm Payments Bank',
-      accountNumberMasked: '••••9154',
-      routingIdentifier: 'PYTM0123456',
-      country: 'India',
-      countryCode: 'IN',
-      currency: 'INR',
-      flagEmoji: '🇮🇳',
-      initials: 'PK',
-      phoneOrEmail: '+91 93158 96154',
-      verificationState: 'VERIFIED',
-      isFavorite: true
+    const CONTACT_MAP: Record<string, Beneficiary> = {
+      'ben_rahul': {
+        id: 'ben_rahul', userId: 'usr_demo_02',
+        name: 'Mr RAHUL SATYENDRA KUMAR', upiIdOrHandle: '9582320234@slc',
+        bankName: 'State Bank of India', accountNumberMasked: '••••0234',
+        routingIdentifier: 'SBIN0009582', country: 'India', countryCode: 'IN',
+        currency: 'INR', flagEmoji: '🇮🇳', initials: 'M',
+        phoneOrEmail: '+91 95823 20234', verificationState: 'VERIFIED', isFavorite: true
+      },
+      'ben_abhishek': {
+        id: 'ben_abhishek', userId: 'usr_demo_03',
+        name: 'ABHISHEK', upiIdOrHandle: '7678573087@axl',
+        bankName: 'Axis Bank', accountNumberMasked: '••••3087',
+        routingIdentifier: 'UTIB0007678', country: 'India', countryCode: 'IN',
+        currency: 'INR', flagEmoji: '🇮🇳', initials: 'A',
+        phoneOrEmail: '+91 76785 73087', verificationState: 'VERIFIED', isFavorite: true
+      },
+      'ben_kartikeyan': {
+        id: 'ben_kartikeyan', userId: 'usr_demo_04',
+        name: 'kartikeyan sahani', upiIdOrHandle: 'kartikeyan@oksbi',
+        bankName: 'State Bank of India', accountNumberMasked: '••••6321',
+        routingIdentifier: 'SBIN0006321', country: 'India', countryCode: 'IN',
+        currency: 'INR', flagEmoji: '🇮🇳', initials: 'K',
+        phoneOrEmail: '+91 77039 16321', verificationState: 'VERIFIED', isFavorite: true
+      },
+      'ben_rahulk': {
+        id: 'ben_rahulk', userId: 'usr_demo_05',
+        name: 'Rahul Kumar', upiIdOrHandle: 'rahulk@oksbi',
+        bankName: 'State Bank of India', accountNumberMasked: '••••3456',
+        routingIdentifier: 'SBIN0001234', country: 'India', countryCode: 'IN',
+        currency: 'INR', flagEmoji: '🇮🇳', initials: 'R',
+        phoneOrEmail: '+91 98101 23456', verificationState: 'VERIFIED', isFavorite: false
+      },
+      'ben_neerendra': {
+        id: 'ben_neerendra', userId: 'usr_demo_06',
+        name: 'Neerendra.', upiIdOrHandle: 'neerendra@okaxis',
+        bankName: 'Axis Bank', accountNumberMasked: '••••8234',
+        routingIdentifier: 'UTIB0008234', country: 'India', countryCode: 'IN',
+        currency: 'INR', flagEmoji: '🇮🇳', initials: 'N',
+        phoneOrEmail: '+91 88001 98234', verificationState: 'VERIFIED', isFavorite: false
+      },
+      'ben_nitin': {
+        id: 'ben_nitin', userId: 'usr_demo_07',
+        name: 'Mr NITIN', upiIdOrHandle: 'nitin@okicici',
+        bankName: 'ICICI Bank', accountNumberMasked: '••••4567',
+        routingIdentifier: 'ICIC0004567', country: 'India', countryCode: 'IN',
+        currency: 'INR', flagEmoji: '🇮🇳', initials: 'M',
+        phoneOrEmail: '+91 99112 34567', verificationState: 'VERIFIED', isFavorite: false
+      },
+      'ben_praveen': {
+        id: 'ben_praveen', userId: 'usr_demo_01',
+        name: 'Praveen Kumar', upiIdOrHandle: '9315896154@ptaxis',
+        bankName: 'Paytm Payments Bank', accountNumberMasked: '••••9154',
+        routingIdentifier: 'PYTM0123456', country: 'India', countryCode: 'IN',
+        currency: 'INR', flagEmoji: '🇮🇳', initials: 'PK',
+        phoneOrEmail: '+91 93158 96154', verificationState: 'VERIFIED', isFavorite: true
+      },
+      'ben_priya_in': {
+        id: 'ben_priya_in', userId: 'usr_demo_08',
+        name: 'Priya Sharma', upiIdOrHandle: 'priya.sharma@okaxis',
+        bankName: 'Axis Bank', accountNumberMasked: '••••2211',
+        routingIdentifier: 'UTIB0002211', country: 'India', countryCode: 'IN',
+        currency: 'INR', flagEmoji: '🇮🇳', initials: 'PS',
+        phoneOrEmail: '+91 91234 56789', verificationState: 'VERIFIED', isFavorite: false
+      },
     };
+
+    return CONTACT_MAP[beneficiaryId] || CONTACT_MAP['ben_praveen'];
   };
 
   const beneficiary = getBeneficiary();
@@ -121,9 +131,40 @@ export default function PaymentChatPage() {
   const [pendingTxId, setPendingTxId] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
 
-  // Receipt Modal
+  // Receipt Modal — shows last payment card from messages
   const [selectedTx, setSelectedTx] = useState<PaymentTransaction | null>(null);
   const [isReceiptOpen, setIsReceiptOpen] = useState(false);
+
+  const openReceipt = () => {
+    // Build a synthetic receipt from the last payment card in messages
+    const lastPayMsg = [...messages].reverse().find((m) => m.type === 'PAYMENT_CARD');
+    if (lastPayMsg) {
+      setSelectedTx({
+        id: `receipt_${Date.now()}`,
+        userId: 'usr_auto_889210',
+        beneficiaryId: beneficiary.id,
+        beneficiaryName: beneficiary.name,
+        beneficiaryUpiId: beneficiary.upiIdOrHandle,
+        beneficiaryCountry: beneficiary.country || 'India',
+        beneficiaryFlag: beneficiary.flagEmoji || '🇮🇳',
+        senderBankAccountId: primaryAccount?.id || 'acc_sbi',
+        sourceCurrency: 'INR',
+        targetCurrency: 'INR',
+        sourceAmount: lastPayMsg.amount,
+        targetAmount: lastPayMsg.amount,
+        exchangeRate: 1,
+        fee: 0,
+        referenceNumber: `UPI${Date.now().toString().slice(-10)}`,
+        status: 'RECIPIENT_CREDITED',
+        purpose: 'FAMILY_SUPPORT',
+        note: 'Payment via Auto-UPI',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        settlementSteps: [],
+      } as any);
+    }
+    setIsReceiptOpen(true);
+  };
 
   // Initialize messages
   useEffect(() => {
@@ -323,7 +364,7 @@ export default function PaymentChatPage() {
                     </div>
 
                     <div
-                      onClick={() => setIsReceiptOpen(true)}
+                      onClick={openReceipt}
                       className="flex items-center justify-between text-xs text-[#C4C7C5] pt-1 cursor-pointer"
                     >
                       <div className="flex items-center gap-1.5 text-[#34D399]">
@@ -341,10 +382,13 @@ export default function PaymentChatPage() {
 
                     <div className="pt-1">
                       <button
-                        onClick={() => setIsReceiptOpen(true)}
+                        onClick={() => {
+                          setSelectedTx(msg as any);
+                          setIsReceiptOpen(true);
+                        }}
                         className="text-xs font-medium text-[#A8C7FA] hover:underline"
                       >
-                        Learn more
+                        View receipt
                       </button>
                     </div>
                   </div>

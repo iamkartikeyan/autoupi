@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '../../context/AuthContext';
 import { usePayment } from '../../context/PaymentContext';
 import { useToast } from '../../context/ToastContext';
@@ -31,6 +32,7 @@ import { RealQRCode } from '../../components/ui/RealQRCode';
 import { GoogleAuthModal } from '../../components/ui/GoogleAuthModal';
 
 export default function YouPage() {
+  const router = useRouter();
   const { user, logout } = useAuth();
   const { bankAccounts, referralData } = usePayment();
   const { showToast } = useToast();
@@ -39,6 +41,7 @@ export default function YouPage() {
   const [isPersonalQrOpen, setIsPersonalQrOpen] = useState(false);
   const [isSupportModalOpen, setIsSupportModalOpen] = useState(false);
   const [isGoogleAuthOpen, setIsGoogleAuthOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [supportMessage, setSupportMessage] = useState('');
 
   const userName = user?.name || 'Kartik Kumar';
@@ -73,7 +76,10 @@ export default function YouPage() {
 
         {/* Top right action bar */}
         <div className="relative z-10 flex items-center justify-end mb-4">
-          <button className="p-2 rounded-full hover:bg-white/10 text-[#C4C7C5] transition-colors">
+          <button
+            onClick={() => setIsMenuOpen(true)}
+            className="p-2 rounded-full hover:bg-white/10 text-[#C4C7C5] transition-colors"
+          >
             <MoreVertical className="w-5 h-5" />
           </button>
         </div>
@@ -172,7 +178,10 @@ export default function YouPage() {
 
           <div className="grid grid-cols-3 gap-2 text-center">
             {/* 1. Bank Account */}
-            <div className="flex flex-col items-center group cursor-pointer">
+            <div
+              onClick={() => router.push('/transfer')}
+              className="flex flex-col items-center group cursor-pointer"
+            >
               <div className="w-14 h-14 rounded-full bg-[#282A30] flex items-center justify-center text-[#A8C7FA] mb-2 group-hover:scale-105 transition-transform">
                 <Building2 className="w-6 h-6" />
               </div>
@@ -415,6 +424,42 @@ export default function YouPage() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Context Menu Modal */}
+      {isMenuOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-end justify-center bg-black/70 backdrop-blur-sm animate-in fade-in"
+          onClick={() => setIsMenuOpen(false)}
+        >
+          <div
+            className="w-full max-w-sm bg-[#1E1F24] border-t border-[#35383F] rounded-t-[32px] p-5 space-y-1"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="w-10 h-1 bg-[#444746] rounded-full mx-auto mb-4" />
+            {[
+              { label: 'Transaction history', action: () => { setIsMenuOpen(false); router.push('/activity'); } },
+              { label: 'Manage bank accounts', action: () => { setIsMenuOpen(false); router.push('/transfer'); } },
+              { label: 'Rewards & offers', action: () => { setIsMenuOpen(false); router.push('/rewards'); } },
+              { label: 'Download app', action: () => { setIsMenuOpen(false); router.push('/download'); } },
+              { label: 'Help & support', action: () => { setIsMenuOpen(false); setIsSupportModalOpen(true); } },
+            ].map((item) => (
+              <button
+                key={item.label}
+                onClick={item.action}
+                className="w-full text-left px-4 py-3.5 rounded-2xl hover:bg-[#282A30] text-sm text-white transition-colors"
+              >
+                {item.label}
+              </button>
+            ))}
+            <button
+              onClick={() => setIsMenuOpen(false)}
+              className="w-full text-center px-4 py-3 rounded-2xl text-sm text-[#8E918F] mt-1"
+            >
+              Cancel
+            </button>
           </div>
         </div>
       )}
