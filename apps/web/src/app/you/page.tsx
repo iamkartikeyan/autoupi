@@ -119,7 +119,7 @@ export default function YouPage() {
       </div>
 
       {/* Main Container */}
-      <div className="px-4 space-y-4 max-w-lg mx-auto -mt-2">
+      <div className="px-4 space-y-4 max-w-lg mx-auto pt-2">
         {/* 2. TOP ACTION PILLS (Matching Screenshot 3) */}
         <div className="grid grid-cols-2 gap-3">
           {/* Rewards Pill */}
