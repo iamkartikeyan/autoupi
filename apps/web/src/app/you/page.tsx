@@ -256,26 +256,19 @@ export default function YouPage() {
           </div>
 
           {/* Install Mobile App (iOS / Android) */}
-          <div
-            onClick={() => {
-              if (window.matchMedia('(display-mode: standalone)').matches) {
-                showToast('App Installed', 'You are already running the native app!', 'info');
-              } else {
-                localStorage.removeItem('pwa_prompt_dismissed');
-                window.location.reload();
-              }
-            }}
+          <Link
+            href="/download"
             className="flex items-center justify-between py-4 cursor-pointer hover:bg-[#1E1F24]/40 px-2 rounded-2xl transition-colors"
           >
             <div className="flex items-center gap-4">
               <Download className="w-5 h-5 text-[#A8C7FA]" />
               <div>
-                <span className="text-base font-normal text-white">Install App</span>
+                <span className="text-base font-normal text-white">Download & Install App</span>
                 <p className="text-xs text-[#8E918F]">Free for iPhone & Android</p>
               </div>
             </div>
-            <span className="text-xs font-medium text-[#A8C7FA]">Install</span>
-          </div>
+            <span className="text-xs font-medium text-[#A8C7FA]">Download</span>
+          </Link>
 
           {/* Google / Gmail Account Switcher */}
           <div
