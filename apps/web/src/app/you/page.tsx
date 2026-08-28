@@ -15,6 +15,7 @@ import {
   Users, 
   AlertCircle, 
   ChevronRight, 
+  ChevronLeft,
   MoreVertical, 
   ShieldCheck, 
   Settings, 
@@ -75,7 +76,13 @@ export default function YouPage() {
         </div>
 
         {/* Top right action bar */}
-        <div className="relative z-10 flex items-center justify-end mb-4">
+        <div className="relative z-10 flex items-center justify-between mb-4">
+          <Link
+            href="/"
+            className="p-2 -ml-2 rounded-full hover:bg-white/10 active:bg-white/20 text-white transition-colors cursor-pointer"
+          >
+            <ChevronLeft className="w-6 h-6" />
+          </Link>
           <button
             onClick={() => setIsMenuOpen(true)}
             className="p-2 rounded-full hover:bg-white/10 text-[#C4C7C5] transition-colors"
@@ -158,21 +165,21 @@ export default function YouPage() {
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm text-white leading-snug">
-              You are not receiving money on your bank account on Auto-UPI
+              Primary bank: State Bank of India ••••6492 (Active for receiving payments)
             </p>
             <button
               onClick={() => showToast('Bank Settings', 'Primary receiving account set to State Bank of India', 'success')}
               className="text-xs font-medium text-[#A8C7FA] hover:underline mt-2 inline-block"
             >
-              Fix now
+              Manage banks
             </button>
           </div>
         </div>
 
         {/* 4. SET UP PAYMENT METHODS SECTION (Matching Screenshot 3) */}
         <div className="p-5 rounded-[28px] bg-[#1E1F24] space-y-4">
-          <div className="flex items-center justify-between cursor-pointer">
-            <h3 className="text-base font-medium text-white">Set up payment methods 1/3</h3>
+          <div className="flex items-center justify-between cursor-pointer" onClick={() => router.push('/transfer')}>
+            <h3 className="text-base font-medium text-white">Bank accounts & payment methods</h3>
             <ChevronRight className="w-5 h-5 text-[#C4C7C5]" />
           </div>
 
@@ -185,9 +192,10 @@ export default function YouPage() {
               <div className="w-14 h-14 rounded-full bg-[#282A30] flex items-center justify-center text-[#A8C7FA] mb-2 group-hover:scale-105 transition-transform">
                 <Building2 className="w-6 h-6" />
               </div>
-              <p className="text-xs font-medium text-white leading-tight">Bank account</p>
-              <p className="text-[11px] text-[#8E918F] mt-0.5">1 account</p>
+              <p className="text-xs font-medium text-white leading-tight">Bank accounts</p>
+              <p className="text-[11px] text-[#8E918F] mt-0.5">4 accounts linked</p>
             </div>
+
 
             {/* 2. RuPay Credit Card */}
             <div

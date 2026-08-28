@@ -1,11 +1,12 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { usePayment } from '../../context/PaymentContext';
 import { StatusPill } from '../../components/ui/StatusPill';
 import { TransactionTimeline } from '../../components/ui/TransactionTimeline';
-import { Search, Shield, Zap, ArrowRight, Clock, CheckCircle2 } from 'lucide-react';
+import { Search, Shield, Zap, ArrowRight, Clock, CheckCircle2, ChevronLeft } from 'lucide-react';
 import { PaymentTransaction } from '@auto-upi/shared';
 
 function TrackTransferContent() {
@@ -35,6 +36,18 @@ function TrackTransferContent() {
 
   return (
     <div className="space-y-6">
+      {/* Top Back Header */}
+      <div className="flex items-center justify-between pb-1">
+        <Link
+          href="/"
+          className="p-2 -ml-2 rounded-full hover:bg-white/10 active:bg-white/20 text-white transition-colors cursor-pointer"
+        >
+          <ChevronLeft className="w-6 h-6" />
+        </Link>
+        <h2 className="text-sm font-medium text-white">Track Settlement</h2>
+        <div className="w-8" />
+      </div>
+
       {/* Header */}
       <div className="text-center max-w-md mx-auto">
         <div className="w-12 h-12 rounded-2xl bg-[#1E1F24] border border-[#35383F] flex items-center justify-center text-white mx-auto mb-3 shadow-md">

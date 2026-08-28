@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { usePayment } from '../../context/PaymentContext';
 import { useToast } from '../../context/ToastContext';
@@ -84,15 +85,15 @@ export default function PayAnyonePage() {
     <div className="min-h-screen bg-[#0E0F12] text-[#E3E3E3] px-4 pt-3 pb-24 max-w-lg mx-auto space-y-6 select-none">
       {/* 1. TOP BAR (Matching Screenshot 3) */}
       <div className="flex items-center justify-between pt-1">
-        <button
-          onClick={() => router.back()}
-          className="p-1 rounded-full hover:bg-white/10 text-white transition-colors"
+        <Link
+          href="/"
+          className="p-2 -ml-2 rounded-full hover:bg-white/10 active:bg-white/20 text-white transition-colors cursor-pointer"
         >
           <ChevronLeft className="w-6 h-6" />
-        </button>
+        </Link>
         <button
           onClick={() => setIsMenuOpen(true)}
-          className="p-1 rounded-full hover:bg-white/10 text-white transition-colors"
+          className="p-2 rounded-full hover:bg-white/10 active:bg-white/20 text-white transition-colors cursor-pointer"
         >
           <MoreVertical className="w-5 h-5" />
         </button>

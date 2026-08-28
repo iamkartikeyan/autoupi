@@ -3,6 +3,7 @@
 export const dynamic = 'force-dynamic';
 
 import React, { useState, Suspense } from 'react';
+import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { usePayment } from '../../../../context/PaymentContext';
 import { useAuth } from '../../../../context/AuthContext';
@@ -74,12 +75,12 @@ function NewPaymentContent() {
     <div className="min-h-screen bg-[#0E0F12] text-[#E3E3E3] px-4 pt-3 pb-24 max-w-lg mx-auto flex flex-col select-none">
       {/* Top Bar */}
       <div className="flex items-center gap-3 pt-1 mb-6">
-        <button
-          onClick={() => router.back()}
-          className="p-1 rounded-full hover:bg-white/10 text-white transition-colors"
+        <Link
+          href="/"
+          className="p-2 -ml-2 rounded-full hover:bg-white/10 active:bg-white/20 text-white transition-colors cursor-pointer"
         >
           <ChevronLeft className="w-6 h-6" />
-        </button>
+        </Link>
         <h1 className="text-xl font-normal text-white">
           {isBank ? 'Bank Transfer' : 'Send Money'}
         </h1>

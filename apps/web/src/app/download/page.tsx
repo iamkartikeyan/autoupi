@@ -29,12 +29,12 @@ export default function DownloadPage() {
       {/* Top Bar */}
       <header className="flex items-center justify-between pb-3 border-b border-[#23252B]">
         <div className="flex items-center gap-3">
-          <button
-            onClick={() => router.back()}
-            className="p-1 rounded-full hover:bg-white/10 text-white transition-colors"
+          <Link
+            href="/"
+            className="p-2 -ml-2 rounded-full hover:bg-white/10 active:bg-white/20 text-white transition-colors cursor-pointer"
           >
             <ChevronLeft className="w-6 h-6" />
-          </button>
+          </Link>
           <h1 className="text-lg font-normal text-white">Download Auto-UPI App</h1>
         </div>
       </header>

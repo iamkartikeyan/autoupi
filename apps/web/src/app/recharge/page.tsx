@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useToast } from '../../context/ToastContext';
 import { usePayment } from '../../context/PaymentContext';
@@ -135,12 +136,12 @@ export default function RechargePage() {
         {/* Top Bar */}
         <div className="flex items-center justify-between px-4 pt-12 pb-3">
           <div className="flex items-center gap-3">
-            <button
-              onClick={() => router.back()}
-              className="p-2 rounded-full hover:bg-white/10 text-white transition-colors"
+            <Link
+              href="/"
+              className="p-2 -ml-2 rounded-full hover:bg-white/10 active:bg-white/20 text-white transition-colors cursor-pointer"
             >
               <ChevronLeft className="w-6 h-6" />
-            </button>
+            </Link>
             <h1 className="text-lg font-normal text-white">Mobile recharge</h1>
           </div>
           <button className="p-2 rounded-full hover:bg-white/10 text-[#C4C7C5] transition-colors">

@@ -18,9 +18,11 @@ import {
   X, 
   ShieldCheck, 
   CircleDollarSign,
-  ChevronRight
+  ChevronRight,
+  ChevronLeft
 } from 'lucide-react';
 import { PaymentTransaction, BankAccount } from '@auto-upi/shared';
+import { BankLogo } from '../../components/ui/BankLogo';
 
 type BalanceCheckState = 'IDLE' | 'VERIFYING' | 'FETCHING' | 'SUCCESS';
 
@@ -44,15 +46,14 @@ export default function MoneyPage() {
   const [newBankName, setNewBankName] = useState('');
   const [newRouting, setNewRouting] = useState('');
 
-  // Primary Bank Account
-  const primaryAccount = bankAccounts[0] || {
-    id: 'bank_sbi',
-    bankName: 'State Bank of India',
-    accountNumberMasked: '••••6492',
-    accountType: 'Savings account',
-    balance: 48250.00,
-    currency: 'INR',
-    routingOrIfsc: 'SBIN0006492'
+  // Helper for Bank UPI ID
+  const getBankUpiId = (bankName: string) => {
+    const name = bankName.toLowerCase();
+    if (name.includes('sbi') || name.includes('state')) return 'kk20140158570@oksbi';
+    if (name.includes('hdfc')) return 'kartik.hdfc@okhdfcbank';
+    if (name.includes('union')) return 'kartik.union@okunion';
+    if (name.includes('kotak')) return 'kartik.kotak@okkotak';
+    return 'user@upi';
   };
 
   const handleStartCheckBalance = (account: BankAccount) => {
@@ -83,7 +84,13 @@ export default function MoneyPage() {
         </div>
 
         {/* Top bar icons */}
-        <div className="relative z-10 flex items-center justify-end">
+        <div className="relative z-10 flex items-center justify-between">
+          <Link
+            href="/"
+            className="p-2 -ml-2 rounded-full hover:bg-white/10 active:bg-white/20 text-white transition-colors cursor-pointer"
+          >
+            <ChevronLeft className="w-6 h-6" />
+          </Link>
           <button className="p-2 rounded-full hover:bg-white/10 text-[#C4C7C5] transition-colors">
             <MoreVertical className="w-5 h-5" />
           </button>
@@ -98,30 +105,33 @@ export default function MoneyPage() {
       {/* Main Content Area */}
       <div className="px-4 space-y-6 max-w-lg mx-auto">
         {/* 2. BANK ACCOUNTS SEAMLESS LIST (NO CARD, Matching Screenshot 2) */}
-        <div className="space-y-4 pt-2">
+        <div className="space-y-4 pt-2 divide-y divide-[#23252B]/60">
           {bankAccounts.map((account) => (
             <div
               key={account.id}
-              className="flex items-center justify-between py-2 cursor-pointer group"
+              className="flex items-center justify-between py-3 cursor-pointer group pt-3"
               onClick={() => handleStartCheckBalance(account)}
             >
               <div className="flex items-center gap-4 min-w-0">
-                {/* SBI / Bank Logo Circle */}
-                <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center text-[#0B57D0] shrink-0 shadow-sm">
-                  <div className="w-7 h-7 rounded-full bg-[#0070BA] flex items-center justify-center text-white">
-                    <div className="w-2.5 h-2.5 rounded-full bg-white" />
-                  </div>
-                </div>
+                {/* Authentic Bank Logo Badge */}
+                <BankLogo bankName={account.bankName} size="md" />
 
                 <div className="min-w-0">
-                  <h3 className="text-base font-normal text-white truncate">
-                    {account.bankName}
-                  </h3>
-                  <p className="text-sm text-[#8E918F] font-mono tracking-wider">
-                    {account.accountNumberMasked || '••••6492'}
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-base font-normal text-white truncate">
+                      {account.bankName}
+                    </h3>
+                    {account.isPrimary && (
+                      <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 text-[10px] font-semibold">
+                        Primary
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-xs text-[#8E918F] font-mono tracking-wider mt-0.5">
+                    {account.accountNumberMasked || '••••6492'} • IFSC: {account.routingOrIfsc}
                   </p>
-                  <p className="text-xs text-[#8E918F]">
-                    {account.accountType ? account.accountType.replace('_', ' ') : 'Savings account'}
+                  <p className="text-xs text-[#A8C7FA] font-mono">
+                    UPI: {getBankUpiId(account.bankName)}
                   </p>
                 </div>
               </div>
@@ -132,7 +142,7 @@ export default function MoneyPage() {
                   e.stopPropagation();
                   handleStartCheckBalance(account);
                 }}
-                className="text-sm font-medium text-[#A8C7FA] hover:text-[#C2E7FF] shrink-0 pl-2"
+                className="text-sm font-medium text-[#A8C7FA] hover:text-[#C2E7FF] shrink-0 pl-2 group-hover:underline"
               >
                 Check balance
               </button>

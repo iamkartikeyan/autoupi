@@ -1,9 +1,11 @@
 'use client';
 
 import React, { useState, Suspense } from 'react';
+import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { usePayment } from '../../context/PaymentContext';
 import { useToast } from '../../context/ToastContext';
+import { BankLogo } from '../../components/ui/BankLogo';
 import { 
   ChevronLeft, 
   MoreVertical, 
@@ -76,12 +78,12 @@ function TransferPageContent() {
         {/* 1. TOP BAR (Matching Screenshots 1 & 2) */}
         <div className="flex items-center justify-between pt-1">
           <div className="flex items-center gap-3">
-            <button
-              onClick={() => router.back()}
-              className="p-1 rounded-full hover:bg-white/10 text-white transition-colors"
+            <Link
+              href="/"
+              className="p-2 -ml-2 rounded-full hover:bg-white/10 active:bg-white/20 text-white transition-colors cursor-pointer"
             >
               <ChevronLeft className="w-6 h-6" />
-            </button>
+            </Link>
             <h1 className="text-xl font-normal text-white">Bank transfer</h1>
           </div>
 
@@ -206,35 +208,45 @@ function TransferPageContent() {
             <div className="flex items-start justify-between gap-4">
               {/* Left Accounts List */}
               <div className="space-y-3 flex-1">
-                {/* Linked SBI Account */}
-                <div
-                  onClick={() => setIsSelfTransferModalOpen(true)}
-                  className="flex items-center gap-3 p-3 rounded-2xl bg-[#1E1F24] border border-[#35383F] cursor-pointer hover:border-[#A8C7FA] transition-colors"
-                >
-                  <div className="w-12 h-12 rounded-xl bg-[#0070BA] flex items-center justify-center text-white font-bold shrink-0 shadow-sm">
-                    <div className="w-6 h-6 rounded-full bg-white flex items-center justify-center text-[#0070BA] text-xs">
-                      ⚡
+                {/* 4 Linked Bank Accounts (SBI, HDFC, Union, Kotak) */}
+                {bankAccounts.map((bank) => (
+                  <div
+                    key={bank.id}
+                    onClick={() => {
+                      setSelectedSelfAccount(bank.id);
+                      setIsSelfTransferModalOpen(true);
+                    }}
+                    className="flex items-center gap-3 p-3 rounded-2xl bg-[#1E1F24] border border-[#35383F] cursor-pointer hover:border-[#A8C7FA] transition-colors"
+                  >
+                    <BankLogo bankName={bank.bankName} size="md" />
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2">
+                        <h3 className="text-sm font-normal text-white truncate">
+                          {bank.bankName}
+                        </h3>
+                        {bank.isPrimary && (
+                          <span className="px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 text-[9px] font-bold">
+                            Primary
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-xs text-[#8E918F] font-mono">{bank.accountNumberMasked} • ₹{bank.balance.toLocaleString('en-IN')}.00</p>
                     </div>
                   </div>
-                  <div className="min-w-0 flex-1">
-                    <h3 className="text-sm font-normal text-white truncate">
-                      {primaryBank.bankName} {primaryBank.accountNumberMasked.slice(-4)}
-                    </h3>
-                    <p className="text-xs text-[#8E918F]">Savings account</p>
-                  </div>
-                </div>
+                ))}
 
                 {/* Add bank account dashed box (Matching Screenshot 1) */}
                 <div
-                  onClick={() => showToast('Link Account', 'Opening bank account linking...', 'info')}
+                  onClick={() => showToast('Link Account', 'All 4 major banks already linked (SBI, HDFC, Union, Kotak)', 'info')}
                   className="flex items-center gap-3 p-3 rounded-2xl border-2 border-dashed border-[#444746] hover:border-[#A8C7FA] cursor-pointer transition-colors"
                 >
-                  <div className="w-12 h-12 rounded-xl flex items-center justify-center text-[#A8C7FA] shrink-0">
-                    <Building2 className="w-6 h-6" />
+                  <div className="w-11 h-11 rounded-xl flex items-center justify-center text-[#A8C7FA] shrink-0 bg-[#1E1F24]">
+                    <Building2 className="w-5 h-5" />
                   </div>
-                  <span className="text-sm font-medium text-white">Add bank account</span>
+                  <span className="text-sm font-medium text-white">Add another bank account</span>
                 </div>
               </div>
+
 
               {/* Right Side Vector Character Illustration (Matching Screenshot 1) */}
               <div className="w-36 h-36 shrink-0 flex items-center justify-center relative hidden sm:flex">

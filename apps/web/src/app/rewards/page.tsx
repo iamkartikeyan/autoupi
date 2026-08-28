@@ -70,12 +70,12 @@ export default function RewardsPage() {
     <div className="min-h-screen bg-[#0E0F12] text-[#E3E3E3] pb-24 select-none">
       {/* Top Header */}
       <div className="max-w-lg mx-auto px-4 pt-4 pb-2 flex items-center justify-between">
-        <button
-          onClick={() => router.back()}
-          className="p-2 -ml-2 rounded-full hover:bg-[#1E1F24] text-white transition-colors"
+        <Link
+          href="/"
+          className="p-2 -ml-2 rounded-full hover:bg-[#1E1F24] active:bg-white/20 text-white transition-colors cursor-pointer"
         >
           <ArrowLeft className="w-6 h-6" />
-        </button>
+        </Link>
         <h1 className="text-lg font-normal text-white">Rewards</h1>
         <div className="w-6" />
       </div>

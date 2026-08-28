@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { usePayment } from '../../context/PaymentContext';
 import { TransactionRow } from '../../components/ui/TransactionRow';
 import { SearchBar } from '../../components/ui/SearchBar';
@@ -82,12 +83,12 @@ export default function ActivityPage() {
     <div className="min-h-screen bg-[#0E0F12] text-[#E3E3E3] px-4 pt-3 pb-24 max-w-lg mx-auto space-y-5 select-none">
       {/* Top Header */}
       <div className="flex items-center gap-3 pt-1">
-        <button
-          onClick={() => router.back()}
-          className="p-1 rounded-full hover:bg-white/10 text-white transition-colors"
+        <Link
+          href="/"
+          className="p-2 -ml-2 rounded-full hover:bg-white/10 active:bg-white/20 text-white transition-colors cursor-pointer"
         >
           <ChevronLeft className="w-6 h-6" />
-        </button>
+        </Link>
         <div>
           <h1 className="text-2xl font-normal text-white tracking-tight">Transaction history</h1>
           <p className="text-xs text-[#8E918F]">All settlements and payments</p>

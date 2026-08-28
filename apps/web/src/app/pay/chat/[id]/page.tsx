@@ -3,6 +3,7 @@
 export const dynamic = 'force-dynamic';
 
 import React, { useState, useEffect, useRef } from 'react';
+import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { usePayment } from '../../../../context/PaymentContext';
 import { useAuth } from '../../../../context/AuthContext';
@@ -275,12 +276,12 @@ export default function PaymentChatPage() {
       {/* 1. TOP APP BAR (Matching Screenshot 1) */}
       <header className="px-4 py-3 bg-[#0E0F12] border-b border-[#23252B] flex items-center justify-between z-10 sticky top-0">
         <div className="flex items-center gap-3">
-          <button
-            onClick={() => router.back()}
-            className="p-1 rounded-full hover:bg-white/10 text-white transition-colors"
+          <Link
+            href="/"
+            className="p-2 -ml-2 rounded-full hover:bg-white/10 active:bg-white/20 text-white transition-colors cursor-pointer"
           >
             <ChevronLeft className="w-6 h-6" />
-          </button>
+          </Link>
 
           <div className="w-10 h-10 rounded-full bg-[#1E1F24] border border-[#35383F] overflow-hidden flex items-center justify-center text-white font-bold text-sm shrink-0">
             {beneficiary.avatarUrl ? (

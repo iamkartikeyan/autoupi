@@ -31,6 +31,8 @@ import {
   Landmark
 } from 'lucide-react';
 
+import { BankLogo } from '../components/ui/BankLogo';
+
 export default function HomePage() {
   const router = useRouter();
   const { user } = useAuth();
@@ -52,6 +54,7 @@ export default function HomePage() {
   const [isFlexCardModalOpen, setIsFlexCardModalOpen] = useState(false);
   const [isCibilModalOpen, setIsCibilModalOpen] = useState(false);
   const [isCheckBalanceOpen, setIsCheckBalanceOpen] = useState(false);
+  const [selectedBankForBalance, setSelectedBankForBalance] = useState<any>(null);
   const [upiPin, setUpiPin] = useState('');
   const [isBalanceRevealed, setIsBalanceRevealed] = useState(false);
   const [isReferralSheetOpen, setIsReferralSheetOpen] = useState(false);
@@ -60,6 +63,7 @@ export default function HomePage() {
   const [rechargeAmount, setRechargeAmount] = useState('299');
 
   const primaryAccount = bankAccounts.find((b) => b.isPrimary) || bankAccounts[0];
+  const activeCheckBank = selectedBankForBalance || primaryAccount;
   const userUpiId = user?.upiId || 'kk20140158570@oksbi';
 
   const copyUpiId = () => {
@@ -80,7 +84,7 @@ export default function HomePage() {
       return;
     }
     setIsBalanceRevealed(true);
-    showToast('Balance Fetched', `Available balance: ₹${(primaryAccount?.balance || 84250).toLocaleString('en-IN')}.00`, 'success');
+    showToast('Balance Fetched', `Available balance: ₹${(activeCheckBank?.balance || 684520).toLocaleString('en-IN')}.00`, 'success');
   };
 
   // 8 Exact Contacts matching Google Pay Theme
@@ -592,8 +596,8 @@ export default function HomePage() {
             <div className="w-12 h-1 bg-[#444746] rounded-full mx-auto mb-4 sm:hidden" />
             <div className="flex justify-between items-center pb-3 border-b border-[#2D3039]">
               <div className="flex items-center gap-2.5">
-                <Building2 className="w-5 h-5 text-[#A8C7FA]" />
-                <h3 className="text-base font-normal text-white">State Bank of India</h3>
+                <BankLogo bankName={activeCheckBank.bankName} size="sm" />
+                <h3 className="text-base font-normal text-white">{activeCheckBank.bankName}</h3>
               </div>
               <button onClick={() => setIsCheckBalanceOpen(false)} className="p-1 text-[#8E918F] hover:text-white">
                 <X className="w-5 h-5" />
@@ -601,20 +605,43 @@ export default function HomePage() {
             </div>
 
             <div className="py-4 space-y-4">
+              {/* Bank Selector Chips */}
+              <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
+                {bankAccounts.map((b) => (
+                  <button
+                    key={b.id}
+                    type="button"
+                    onClick={() => {
+                      setSelectedBankForBalance(b);
+                      setIsBalanceRevealed(false);
+                      setUpiPin('');
+                    }}
+                    className={`px-3 py-1.5 rounded-full text-xs font-medium flex items-center gap-1.5 shrink-0 transition-colors ${
+                      activeCheckBank.id === b.id
+                        ? 'bg-[#A8C7FA] text-[#041E49] font-bold'
+                        : 'bg-[#16171B] text-[#C4C7C5] border border-[#35383F]'
+                    }`}
+                  >
+                    <BankLogo bankName={b.bankName} size="sm" className="w-4 h-4" />
+                    <span>{b.bankName.split(' ')[0]}</span>
+                  </button>
+                ))}
+              </div>
+
               <p className="text-xs text-[#8E918F]">
-                Savings Account ••••6492 (IFSC: SBIN0006492)
+                Savings Account {activeCheckBank.accountNumberMasked} (IFSC: {activeCheckBank.routingOrIfsc})
               </p>
 
               {!isBalanceRevealed ? (
                 <div className="space-y-3">
-                  <label className="text-xs text-[#8E918F]">Enter 4-Digit UPI PIN to View Balance</label>
+                  <label className="text-xs text-[#8E918F]">Enter 4-Digit UPI PIN for {activeCheckBank.bankName}</label>
                   <input
                     type="password"
                     maxLength={6}
                     placeholder="••••"
                     value={upiPin}
                     onChange={(e) => setUpiPin(e.target.value)}
-                    className="w-full px-4 py-3 rounded-2xl bg-[#16171B] border border-[#35383F] focus:border-[#A8C7FA] text-center text-2xl tracking-widest text-white focus:outline-none"
+                    className="w-full px-4 py-3 rounded-2xl bg-[#16171B] border border-[#35383F] focus:border-[#A8C7FA] text-center text-2xl tracking-widest text-white focus:outline-none font-mono"
                   />
                   <button
                     type="button"
@@ -626,9 +653,9 @@ export default function HomePage() {
                 </div>
               ) : (
                 <div className="p-5 rounded-2xl bg-[#16171B] border border-emerald-500/30 text-center space-y-3 animate-in zoom-in-95">
-                  <p className="text-xs text-emerald-400 font-medium">Available Account Balance</p>
+                  <p className="text-xs text-emerald-400 font-medium">{activeCheckBank.bankName} Available Balance</p>
                   <h3 className="text-3xl font-normal text-white font-mono">
-                    ₹{(primaryAccount?.balance || 84250).toLocaleString('en-IN')}.00
+                    ₹{activeCheckBank.balance.toLocaleString('en-IN')}.00
                   </h3>
                   <p className="text-[11px] text-[#8E918F]">Verified live from NPCI clearing switch</p>
                   <button
