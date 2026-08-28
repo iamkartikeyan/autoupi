@@ -1,6 +1,9 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+export const dynamic = 'force-dynamic';
+
+import React, { useState, useEffect, useRef, Suspense } from 'react';
+import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '../../context/AuthContext';
 import { usePayment } from '../../context/PaymentContext';
@@ -23,7 +26,7 @@ import {
   ShieldCheck
 } from 'lucide-react';
 
-export default function QRPage() {
+function QRPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const initialMode = searchParams.get('mode') === 'show' ? 'SHOW' : 'SCAN';
@@ -46,7 +49,7 @@ export default function QRPage() {
   const primaryBank = bankAccounts[0] || {
     bankName: 'State Bank of India',
     accountNumberMasked: '••••6492',
-    balance: 48250.00
+    balance: 684520.00
   };
 
   const upiQrUri = `upi://pay?pa=${encodeURIComponent(userUpiId)}&pn=${encodeURIComponent(userName)}&cu=INR&mode=02`;
@@ -186,12 +189,12 @@ export default function QRPage() {
 
           {/* Top Floating Action Bar */}
           <div className="relative z-20 flex items-center justify-between p-4 pt-12">
-            <button
-              onClick={() => router.push('/')}
-              className="w-10 h-10 rounded-full bg-black/50 backdrop-blur-md flex items-center justify-center text-white hover:bg-black/70 transition-colors"
+            <Link
+              href="/"
+              className="w-10 h-10 rounded-full bg-black/50 backdrop-blur-md flex items-center justify-center text-white hover:bg-black/70 transition-colors cursor-pointer"
             >
               <X className="w-6 h-6" />
-            </button>
+            </Link>
 
             <div className="flex items-center gap-2">
               {/* Flashlight Button */}
@@ -243,7 +246,7 @@ export default function QRPage() {
               <span className="font-medium">Quick demo merchants:</span>
               <button
                 onClick={() => fileInputRef.current?.click()}
-                className="text-[#A8C7FA] hover:underline flex items-center gap-1"
+                className="text-[#A8C7FA] hover:underline flex items-center gap-1 cursor-pointer"
               >
                 <Upload className="w-3 h-3" />
                 <span>Upload from gallery</span>
@@ -253,7 +256,7 @@ export default function QRPage() {
             <div className="grid grid-cols-2 gap-2">
               <button
                 onClick={() => router.push('/pay/chat/ben_praveen')}
-                className="p-3 rounded-2xl bg-[#1E1F24]/90 hover:bg-[#282A30] border border-[#35383F] text-left transition-all active:scale-95"
+                className="p-3 rounded-2xl bg-[#1E1F24]/90 hover:bg-[#282A30] border border-[#35383F] text-left transition-all active:scale-95 cursor-pointer"
               >
                 <p className="text-xs font-normal text-white truncate">Praveen Kumar</p>
                 <p className="text-[10px] text-[#8E918F] font-mono truncate">9315896154@ptaxis</p>
@@ -261,7 +264,7 @@ export default function QRPage() {
 
               <button
                 onClick={() => router.push('/pay/chat/ben_rahul')}
-                className="p-3 rounded-2xl bg-[#1E1F24]/90 hover:bg-[#282A30] border border-[#35383F] text-left transition-all active:scale-95"
+                className="p-3 rounded-2xl bg-[#1E1F24]/90 hover:bg-[#282A30] border border-[#35383F] text-left transition-all active:scale-95 cursor-pointer"
               >
                 <p className="text-xs font-normal text-white truncate">Rahul Satyendra</p>
                 <p className="text-[10px] text-[#8E918F] font-mono truncate">9582320234@slc</p>
@@ -276,12 +279,12 @@ export default function QRPage() {
         <div className="flex-1 flex flex-col justify-between p-4 pt-12">
           {/* Top Bar */}
           <div className="flex items-center justify-between">
-            <button
-              onClick={() => router.push('/')}
-              className="p-2 rounded-full hover:bg-white/10 text-white transition-colors"
+            <Link
+              href="/"
+              className="p-2 -ml-2 rounded-full hover:bg-white/10 active:bg-white/20 text-white transition-colors cursor-pointer"
             >
               <ChevronLeft className="w-6 h-6" />
-            </button>
+            </Link>
             <h2 className="text-base font-normal text-white">Your QR Code</h2>
             <div className="w-8" />
           </div>
@@ -321,7 +324,7 @@ export default function QRPage() {
               {/* UPI ID Row with Copy */}
               <div className="flex items-center justify-center gap-1.5 text-xs text-[#8E918F] font-mono">
                 <span>UPI ID: {userUpiId}</span>
-                <button onClick={copyUpiId} className="text-[#A8C7FA] hover:text-white p-0.5">
+                <button onClick={copyUpiId} className="text-[#A8C7FA] hover:text-white p-0.5 cursor-pointer">
                   <Copy className="w-3.5 h-3.5" />
                 </button>
               </div>
@@ -332,7 +335,7 @@ export default function QRPage() {
           <div className="space-y-3 pt-2">
             <button
               onClick={handleShareQr}
-              className="w-full py-3.5 rounded-full bg-[#A8C7FA] hover:bg-[#C2E7FF] text-[#041E49] text-sm font-medium flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
+              className="w-full py-3.5 rounded-full bg-[#A8C7FA] hover:bg-[#C2E7FF] text-[#041E49] text-sm font-medium flex items-center justify-center gap-2 transition-all active:scale-[0.98] cursor-pointer"
             >
               <Share2 className="w-4 h-4" />
               <span>Share QR code</span>
@@ -348,7 +351,7 @@ export default function QRPage() {
         <div className="flex items-center justify-center p-1 rounded-full bg-[#1E1F24] border border-[#35383F] max-w-xs mx-auto">
           <button
             onClick={() => setMode('SCAN')}
-            className={`flex-1 py-2 rounded-full text-xs font-semibold flex items-center justify-center gap-1.5 transition-all ${
+            className={`flex-1 py-2 rounded-full text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
               mode === 'SCAN'
                 ? 'bg-[#A8C7FA] text-[#041E49] shadow-sm'
                 : 'text-[#8E918F] hover:text-white'
@@ -360,7 +363,7 @@ export default function QRPage() {
 
           <button
             onClick={() => setMode('SHOW')}
-            className={`flex-1 py-2 rounded-full text-xs font-semibold flex items-center justify-center gap-1.5 transition-all ${
+            className={`flex-1 py-2 rounded-full text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
               mode === 'SHOW'
                 ? 'bg-[#A8C7FA] text-[#041E49] shadow-sm'
                 : 'text-[#8E918F] hover:text-white'
@@ -372,5 +375,13 @@ export default function QRPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function QRPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#0E0F12] text-white flex items-center justify-center">Loading scanner...</div>}>
+      <QRPageContent />
+    </Suspense>
   );
 }
