@@ -432,41 +432,139 @@ export default function PaymentChatPage() {
       </footer>
 
       {/* ================================================================= */}
-      {/* PAYMENT MODAL SHEET */}
+      {/* GOOGLE PAY-STYLE FULL-SCREEN PAYMENT ENTRY */}
       {/* ================================================================= */}
       {isPaySheetOpen && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-sm animate-in fade-in">
-          <div className="w-full max-w-sm bg-[#1E1F24] border-t sm:border border-[#35383F] rounded-t-[32px] sm:rounded-[32px] p-6 text-white text-center">
-            <div className="w-12 h-1 bg-[#35383F] rounded-full mx-auto mb-4 sm:hidden" />
+        <div className="fixed inset-0 z-50 bg-[#111214] flex flex-col animate-in fade-in slide-in-from-bottom-4 duration-200">
+          {/* Top Bar: X | Info | ⋮ */}
+          <div className="flex items-center justify-between px-5 pt-12 pb-4">
+            <button
+              onClick={() => setIsPaySheetOpen(false)}
+              className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-white/10 text-white transition-colors"
+            >
+              <X className="w-6 h-6" />
+            </button>
+            <div className="flex items-center gap-1">
+              <button className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-white/10 text-[#C4C7C5] transition-colors">
+                <ShieldCheck className="w-5 h-5" />
+              </button>
+              <button className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-white/10 text-[#C4C7C5] transition-colors">
+                <ChevronRight className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
 
-            <div className="flex items-center justify-between mb-4">
-              <span className="text-base font-normal">Paying {beneficiary.name}</span>
-              <button onClick={() => setIsPaySheetOpen(false)} className="text-[#8E918F] hover:text-white">
-                <X className="w-5 h-5" />
+          {/* Recipient Info */}
+          <div className="flex flex-col items-center justify-center text-center px-6 pt-4 pb-2 space-y-2">
+            {/* Avatar */}
+            <div className="w-16 h-16 rounded-full bg-[#7B1FA2] flex items-center justify-center text-white font-normal text-3xl shadow-lg mb-1">
+              {beneficiary.avatarUrl ? (
+                <img src={beneficiary.avatarUrl} alt={beneficiary.name} className="w-full h-full rounded-full object-cover" />
+              ) : (
+                (beneficiary.initials || beneficiary.name.charAt(0))
+              )}
+            </div>
+
+            {/* Paying name */}
+            <p className="text-base font-normal text-white">Paying {beneficiary.name}</p>
+
+            {/* Banking verified name */}
+            <div className="flex items-center gap-1.5 text-sm text-[#C4C7C5]">
+              <ShieldCheck className="w-4 h-4 text-white shrink-0" />
+              <span>Banking name: {beneficiary.name}</span>
+            </div>
+
+            {/* UPI handle */}
+            <p className="text-sm text-[#8E918F]">
+              {beneficiary.bankName} • {beneficiary.upiIdOrHandle}
+            </p>
+          </div>
+
+          {/* Amount Display */}
+          <div className="flex-1 flex flex-col items-center justify-center px-8 space-y-5">
+            <div className="flex items-center gap-2">
+              <span className="text-4xl font-light text-white">₹</span>
+              <span className="text-6xl font-light text-white font-mono min-w-[120px] text-left">
+                {amount === '0' || amount === '' ? (
+                  <span className="opacity-40">0</span>
+                ) : amount}
+              </span>
+            </div>
+
+            {/* Add note pill */}
+            <button
+              onClick={() => {
+                const note = window.prompt('Add a note for this payment:');
+                if (note) showToast('Note Added', `"${note}" will be sent with payment`, 'info');
+              }}
+              className="px-5 py-2 rounded-full bg-[#1E1F24] border border-[#35383F] text-sm text-[#C4C7C5] hover:bg-[#282A30] transition-colors"
+            >
+              Add note
+            </button>
+          </div>
+
+          {/* Custom Numeric Keypad + Arrow Button */}
+          <div className="px-4 pb-10">
+            {/* Proceed Arrow (bottom right) */}
+            <div className="flex justify-end mb-4 pr-2">
+              <button
+                onClick={handleStartPayment}
+                disabled={isProcessing || Number(amount) <= 0}
+                className={`w-16 h-16 rounded-[22px] flex items-center justify-center shadow-lg transition-all active:scale-95 ${
+                  Number(amount) > 0
+                    ? 'bg-[#A8C7FA] hover:bg-[#C2E7FF]'
+                    : 'bg-[#1E2A3A] opacity-50'
+                }`}
+              >
+                <ArrowRight className={`w-7 h-7 ${Number(amount) > 0 ? 'text-[#041E49]' : 'text-[#A8C7FA]'}`} />
               </button>
             </div>
 
-            <div className="my-6">
-              <div className="flex items-center justify-center gap-1">
-                <span className="text-3xl font-light text-[#8E918F]">₹</span>
-                <input
-                  type="number"
-                  value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
-                  autoFocus
-                  className="bg-transparent text-5xl font-normal text-white text-center w-48 focus:outline-none font-mono"
-                  placeholder="0"
-                />
-              </div>
+            {/* Numpad Grid */}
+            <div className="grid grid-cols-3 gap-3">
+              {['1', '2', '3', '4', '5', '6', '7', '8', '9', '.', '0', 'DEL'].map((key) => (
+                <button
+                  key={key}
+                  onClick={() => {
+                    if (key === 'DEL') {
+                      setAmount((prev) => {
+                        if (prev.length <= 1) return '0';
+                        return prev.slice(0, -1);
+                      });
+                    } else if (key === '.') {
+                      setAmount((prev) => {
+                        if (prev.includes('.')) return prev;
+                        return prev + '.';
+                      });
+                    } else {
+                      setAmount((prev) => {
+                        const next = prev === '0' ? key : prev + key;
+                        if (Number(next) > 100000) return prev; // Max ₹1,00,000
+                        return next;
+                      });
+                    }
+                  }}
+                  className="h-16 rounded-2xl bg-[#1C1C1F] hover:bg-[#282A30] active:scale-95 active:bg-[#35383F] transition-all flex flex-col items-center justify-center text-white shadow-sm"
+                >
+                  {key === 'DEL' ? (
+                    <svg viewBox="0 0 24 24" className="w-6 h-6 text-white" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z" />
+                      <line x1="18" y1="9" x2="12" y2="15" />
+                      <line x1="12" y1="9" x2="18" y2="15" />
+                    </svg>
+                  ) : (
+                    <>
+                      <span className="text-2xl font-light leading-tight">{key}</span>
+                      {['2','3','4','5','6','7','8','9'].includes(key) && (
+                        <span className="text-[9px] text-[#8E918F] tracking-widest mt-0.5">
+                          {key === '2' ? 'ABC' : key === '3' ? 'DEF' : key === '4' ? 'GHI' : key === '5' ? 'JKL' : key === '6' ? 'MNO' : key === '7' ? 'PQRS' : key === '8' ? 'TUV' : 'WXYZ'}
+                        </span>
+                      )}
+                    </>
+                  )}
+                </button>
+              ))}
             </div>
-
-            <button
-              onClick={handleStartPayment}
-              disabled={isProcessing || Number(amount) <= 0}
-              className="w-full py-3.5 rounded-full bg-[#A8C7FA] hover:bg-[#C2E7FF] text-[#041E49] text-sm font-medium transition-all"
-            >
-              Pay ₹{amount}
-            </button>
           </div>
         </div>
       )}
