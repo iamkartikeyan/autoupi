@@ -21,11 +21,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
-interface AppShellProps {
-  children: ReactNode;
-}
-
-export const AppShell: React.FC<AppShellProps> = ({ children }) => {
+export const AppShell = ({ children }: { children?: any }) => {
   const pathname = usePathname();
   const { user } = useAuth();
 

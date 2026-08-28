@@ -39,7 +39,7 @@ const DEFAULT_USER: UserProfile = {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+export const AuthProvider = ({ children }: { children?: any }) => {
   const [user, setUser] = useState<UserProfile>(DEFAULT_USER);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(true);
   const [isLoading, setIsLoading] = useState<boolean>(false);

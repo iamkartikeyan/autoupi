@@ -544,7 +544,7 @@ const INITIAL_TRANSACTIONS: PaymentTransaction[] = [
 
 const PaymentContext = createContext<PaymentContextType | undefined>(undefined);
 
-export const PaymentProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+export const PaymentProvider = ({ children }: { children?: any }) => {
   const [bankAccounts, setBankAccounts] = useState<BankAccount[]>(INITIAL_BANK_ACCOUNTS);
   const [beneficiaries, setBeneficiaries] = useState<Beneficiary[]>(INITIAL_BENEFICIARIES);
   const [transactions, setTransactions] = useState<PaymentTransaction[]>(INITIAL_TRANSACTIONS);
