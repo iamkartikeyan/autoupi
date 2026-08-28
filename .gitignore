@@ -1,0 +1,46 @@
+# Dependencies
+node_modules
+.pnp
+.pnp.js
+
+# Testing & Coverage
+coverage
+.nyc_output
+
+# Production & Build outputs
+.next/
+out/
+build/
+dist/
+artifacts/
+cache/
+
+# Debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Local environment files
+.env*.local
+.env
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Vercel & Turborepo
+.vercel
+.turbo
+
+# Hardhat & EVM
+typechain/
+typechain-types/
+
+# macOS system files
+.DS_Store
+*.pem
+
+# IDE & system
+.vscode/
+.idea/
+.gemini/

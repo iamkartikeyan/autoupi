@@ -1,0 +1,74 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #0E0F12;
+  --foreground: #E3E3E3;
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: 'Google Sans', 'Roboto', 'Inter', system-ui, -apple-system, sans-serif;
+  overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Custom Google Pay style scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0E0F12;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #35383F;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #444746;
+}
+
+/* Clean Google Pay Container helpers */
+.gpay-card {
+  background: #1E1F24;
+  border-radius: 28px;
+}
+
+.gpay-pill-btn {
+  background-color: #A8C7FA;
+  color: #041E49;
+  font-weight: 500;
+  border-radius: 9999px;
+  transition: all 0.2s ease;
+}
+.gpay-pill-btn:hover {
+  background-color: #C2E7FF;
+}
+
+.gpay-outline-btn {
+  border: 1px solid #444746;
+  color: #A8C7FA;
+  border-radius: 9999px;
+  background-color: transparent;
+  transition: all 0.2s ease;
+}
+.gpay-outline-btn:hover {
+  background-color: #1E1F24;
+}
+
+/* Hide spin arrows on number input */
+input[type='number']::-webkit-inner-spin-button,
+input[type='number']::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type='number'] {
+  -moz-appearance: textfield;
+}
