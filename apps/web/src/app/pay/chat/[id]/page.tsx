@@ -167,6 +167,8 @@ export default function PaymentChatPage() {
     setIsReceiptOpen(true);
   };
 
+  const isInitialMount = useRef(true);
+
   // Initialize messages
   useEffect(() => {
     setMessages([
@@ -192,8 +194,13 @@ export default function PaymentChatPage() {
   }, [beneficiary]);
 
   useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
 
   const handleSendText = (e: React.FormEvent) => {
     e.preventDefault();
