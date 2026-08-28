@@ -10,6 +10,11 @@ export const BottomNav: React.FC = () => {
   const pathname = usePathname();
   const { user } = useAuth();
 
+  // Hide BottomNav on chat pages and full-screen QR scanner to avoid mobile viewport overlap
+  if (pathname.includes('/pay/chat') || pathname === '/qr') {
+    return null;
+  }
+
   const isCurrent = (href: string) => {
     if (href === '/') return pathname === '/' || pathname === '/home';
     return pathname.startsWith(href);

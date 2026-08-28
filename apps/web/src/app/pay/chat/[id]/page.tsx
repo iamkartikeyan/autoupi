@@ -130,8 +130,27 @@ export default function PaymentChatPage() {
   const [selectedBank, setSelectedBank] = useState<BankAccount>(defaultBank || bankAccounts[0]);
   const [isBankPickerOpen, setIsBankPickerOpen] = useState(false);
 
-  // Conversation state
-  const [messages, setMessages] = useState<any[]>([]);
+  // Conversation state initialized synchronously
+  const [messages, setMessages] = useState<any[]>(() => [
+    {
+      id: 'msg_text_100',
+      type: 'TEXT_BUBBLE',
+      sender: 'ME',
+      text: '5',
+      timestamp: '14 Aug, 4:13pm'
+    },
+    {
+      id: 'msg_tx_100',
+      type: 'PAYMENT_CARD',
+      sender: 'ME',
+      amount: 5,
+      currency: 'INR',
+      date: '14 Aug',
+      recipientBank: beneficiary.bankName || 'Union Bank of India',
+      recipientUpi: beneficiary.upiIdOrHandle || 'sahanisushil9@axl',
+      status: 'COMPLETED'
+    }
+  ]);
   const [messageInput, setMessageInput] = useState('');
 
   // Payment Screens Flow State: 'NONE' | 'AMOUNT_ENTRY' | 'PIN_SCREEN' | 'SUCCESS_SCREEN'
@@ -146,37 +165,11 @@ export default function PaymentChatPage() {
   const [selectedTx, setSelectedTx] = useState<PaymentTransaction | null>(null);
   const [isReceiptOpen, setIsReceiptOpen] = useState(false);
 
-  // Initialize messages without scroll glitch
-  useEffect(() => {
-    setMessages([
-      {
-        id: 'msg_text_100',
-        type: 'TEXT_BUBBLE',
-        sender: 'ME',
-        text: '5',
-        timestamp: '14 Aug, 4:13pm'
-      },
-      {
-        id: 'msg_tx_100',
-        type: 'PAYMENT_CARD',
-        sender: 'ME',
-        amount: 5,
-        currency: 'INR',
-        date: '14 Aug',
-        recipientBank: beneficiary.bankName || 'Union Bank of India',
-        recipientUpi: beneficiary.upiIdOrHandle || 'sahanisushil9@axl',
-        status: 'COMPLETED'
-      }
-    ]);
-  }, [beneficiary]);
-
-  useEffect(() => {
-    if (isInitialMount.current) {
-      isInitialMount.current = false;
-      return;
-    }
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+  const scrollToBottom = () => {
+    setTimeout(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, 50);
+  };
 
   const handleSendText = (e: React.FormEvent) => {
     e.preventDefault();
@@ -193,6 +186,7 @@ export default function PaymentChatPage() {
       }
     ]);
     setMessageInput('');
+    scrollToBottom();
   };
 
   const openReceipt = () => {
@@ -267,12 +261,13 @@ export default function PaymentChatPage() {
       setLastCompletedTx(newTx);
       setMessages((prev) => [...prev, newTx]);
       setPayFlowStep('SUCCESS_SCREEN');
+      scrollToBottom();
       showToast('Payment Successful', `₹${paidAmount}.00 paid to ${beneficiary.name}`, 'success');
     }, 1200);
   };
 
   return (
-    <div className="min-h-screen bg-[#0E0F12] text-[#E3E3E3] flex flex-col justify-between max-w-lg mx-auto select-none relative overflow-hidden">
+    <div className="w-full max-w-lg mx-auto min-h-[100dvh] bg-[#0E0F12] text-[#E3E3E3] flex flex-col justify-between select-none relative overflow-x-hidden">
       {/* ================================================================= */}
       {/* 1. CHAT SCREEN (Matching Image 3) */}
       {/* ================================================================= */}

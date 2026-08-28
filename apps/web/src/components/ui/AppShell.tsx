@@ -90,7 +90,7 @@ export const AppShell = ({ children }: { children?: any }) => {
         </aside>
 
         {/* Main Viewport Content Area */}
-        <main className={`flex-1 w-full max-w-3xl mx-auto ${isFullScreenPage ? 'p-0' : 'px-4 py-4 sm:py-6'} pb-24 sm:pb-8`}>
+        <main className={`flex-1 w-full ${isFullScreenPage ? 'p-0 pb-0' : 'max-w-3xl mx-auto px-4 py-4 sm:py-6 pb-24 sm:pb-8'} overflow-x-hidden`}>
           {children}
         </main>
       </div>
