@@ -43,7 +43,7 @@ export const AppShell = ({ children }: { children?: any }) => {
 
   // Pages that manage their own full-screen header — no TopBar, no extra padding
   const FULL_SCREEN_PAGES = [
-    '/you', '/money', '/recharge', '/activity', '/rewards',
+    '/', '/home', '/you', '/money', '/recharge', '/activity', '/rewards',
     '/transfer', '/qr', '/pay', '/track', '/offers', '/download'
   ];
   const isFullScreenPage = FULL_SCREEN_PAGES.some((p) => pathname === p || pathname.startsWith(p + '/'));

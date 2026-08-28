@@ -150,7 +150,7 @@ export default function HomePage() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#0E0F12] text-[#E3E3E3] pb-28 select-none relative overflow-x-hidden">
+    <div className="min-h-screen bg-[#0E0F12] text-[#E3E3E3] pb-28 relative overflow-x-hidden">
       {/* ========================================================================= */}
       {/* 1. SCENIC GOOGLE PAY DARK VECTOR HEADER BACKGROUND */}
       {/* ========================================================================= */}
@@ -620,12 +620,19 @@ export default function HomePage() {
                   </button>
                 </div>
               ) : (
-                <div className="p-5 rounded-2xl bg-[#16171B] border border-emerald-500/30 text-center space-y-2 animate-in zoom-in-95">
+                <div className="p-5 rounded-2xl bg-[#16171B] border border-emerald-500/30 text-center space-y-3 animate-in zoom-in-95">
                   <p className="text-xs text-emerald-400 font-medium">Available Account Balance</p>
                   <h3 className="text-3xl font-normal text-white font-mono">
                     ₹{(primaryAccount?.balance || 84250).toLocaleString('en-IN')}.00
                   </h3>
                   <p className="text-[11px] text-[#8E918F]">Verified live from NPCI clearing switch</p>
+                  <button
+                    type="button"
+                    onClick={() => setIsCheckBalanceOpen(false)}
+                    className="w-full py-3 rounded-full bg-[#A8C7FA] hover:bg-[#C2E7FF] text-[#041E49] font-semibold text-sm transition-colors mt-2"
+                  >
+                    Done
+                  </button>
                 </div>
               )}
             </div>
