@@ -43,8 +43,8 @@ export const AppShell = ({ children }: { children?: any }) => {
 
   return (
     <div className="min-h-screen bg-background text-gray-100 flex flex-col font-sans">
-      {/* TopBar on mobile and compact header */}
-      <TopBar />
+      {/* TopBar on other sub-pages */}
+      {pathname !== '/' && <TopBar />}
 
       <div className="flex-1 flex max-w-7xl w-full mx-auto">
         {/* Desktop Persistent Left Sidebar */}

@@ -3,16 +3,12 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, IndianRupee, User } from 'lucide-react';
+import { Home, User } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 
 export const BottomNav: React.FC = () => {
   const pathname = usePathname();
-
-  const NAV_ITEMS = [
-    { label: 'Home', href: '/', icon: Home },
-    { label: 'Money', href: '/money', icon: IndianRupee },
-    { label: 'You', href: '/you', icon: User },
-  ];
+  const { user } = useAuth();
 
   const isCurrent = (href: string) => {
     if (href === '/') return pathname === '/' || pathname === '/home';
@@ -20,38 +16,82 @@ export const BottomNav: React.FC = () => {
   };
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-[#121316] border-t border-[#23252B] px-6 py-2 sm:hidden">
+    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-[#0E0F12] border-t border-[#1E1F24] px-4 py-2 sm:hidden">
       <div className="flex items-center justify-around max-w-sm mx-auto">
-        {NAV_ITEMS.map((item) => {
-          const active = isCurrent(item.href);
-          const Icon = item.icon;
+        {/* TAB 1: HOME */}
+        <Link
+          href="/"
+          className="flex flex-col items-center justify-center min-w-[72px] select-none group"
+        >
+          <div
+            className={`flex items-center justify-center px-5 py-1 rounded-full transition-all duration-200 ${
+              isCurrent('/')
+                ? 'bg-[#0B57D0] text-white shadow-sm'
+                : 'text-[#8E918F] group-hover:text-white'
+            }`}
+          >
+            <Home className={`w-5 h-5 ${isCurrent('/') ? 'fill-white stroke-white' : 'stroke-[2]'}`} />
+          </div>
+          <span
+            className={`text-xs mt-1 transition-colors duration-200 ${
+              isCurrent('/') ? 'font-medium text-white' : 'font-normal text-[#8E918F]'
+            }`}
+          >
+            Home
+          </span>
+        </Link>
 
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="flex flex-col items-center justify-center min-w-[64px] select-none group"
-            >
-              {/* Google Material 3 Active Pill */}
-              <div
-                className={`flex items-center justify-center px-5 py-1 rounded-full transition-all duration-200 ${
-                  active
-                    ? 'bg-[#004A77] text-[#C2E7FF]'
-                    : 'text-[#C4C7C5] group-hover:text-white'
-                }`}
-              >
-                <Icon className={`w-5 h-5 ${active ? 'stroke-[2.5]' : 'stroke-[2]'}`} />
-              </div>
-              <span
-                className={`text-xs mt-1 transition-colors duration-200 ${
-                  active ? 'font-bold text-[#E3E3E3]' : 'font-medium text-[#C4C7C5]'
-                }`}
-              >
-                {item.label}
-              </span>
-            </Link>
-          );
-        })}
+        {/* TAB 2: MONEY */}
+        <Link
+          href="/money"
+          className="flex flex-col items-center justify-center min-w-[72px] select-none group"
+        >
+          <div
+            className={`flex items-center justify-center px-5 py-1 rounded-full transition-all duration-200 ${
+              isCurrent('/money')
+                ? 'bg-[#0B57D0] text-white shadow-sm'
+                : 'text-[#8E918F] group-hover:text-white'
+            }`}
+          >
+            <div className="w-5 h-5 rounded-full border-[1.8px] border-current flex items-center justify-center font-bold text-[11px] leading-none">
+              ₹
+            </div>
+          </div>
+          <span
+            className={`text-xs mt-1 transition-colors duration-200 ${
+              isCurrent('/money') ? 'font-medium text-white' : 'font-normal text-[#8E918F]'
+            }`}
+          >
+            Money
+          </span>
+        </Link>
+
+        {/* TAB 3: YOU */}
+        <Link
+          href="/you"
+          className="flex flex-col items-center justify-center min-w-[72px] select-none group"
+        >
+          <div
+            className={`flex items-center justify-center px-5 py-1 rounded-full transition-all duration-200 ${
+              isCurrent('/you')
+                ? 'bg-[#0B57D0] text-white shadow-sm'
+                : 'text-[#8E918F] group-hover:text-white'
+            }`}
+          >
+            {user?.avatarUrl ? (
+              <img src={user.avatarUrl} alt="You" className="w-5 h-5 rounded-full object-cover border border-current" />
+            ) : (
+              <User className="w-5 h-5 stroke-[2]" />
+            )}
+          </div>
+          <span
+            className={`text-xs mt-1 transition-colors duration-200 ${
+              isCurrent('/you') ? 'font-medium text-white' : 'font-normal text-[#8E918F]'
+            }`}
+          >
+            You
+          </span>
+        </Link>
       </div>
     </nav>
   );
