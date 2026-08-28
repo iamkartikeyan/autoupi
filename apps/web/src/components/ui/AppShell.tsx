@@ -41,10 +41,17 @@ export const AppShell = ({ children }: { children?: any }) => {
     return pathname.startsWith(href);
   };
 
+  // Pages that manage their own full-screen header — no TopBar, no extra padding
+  const FULL_SCREEN_PAGES = [
+    '/you', '/money', '/recharge', '/activity', '/rewards',
+    '/transfer', '/qr', '/pay', '/track', '/offers', '/download'
+  ];
+  const isFullScreenPage = FULL_SCREEN_PAGES.some((p) => pathname === p || pathname.startsWith(p + '/'));
+
   return (
     <div className="min-h-screen bg-background text-gray-100 flex flex-col font-sans">
-      {/* TopBar on other sub-pages */}
-      {pathname !== '/' && <TopBar />}
+      {/* TopBar only on non-home, non-full-screen pages */}
+      {pathname !== '/' && !isFullScreenPage && <TopBar />}
 
       <div className="flex-1 flex max-w-7xl w-full mx-auto">
         {/* Desktop Persistent Left Sidebar */}
@@ -83,7 +90,7 @@ export const AppShell = ({ children }: { children?: any }) => {
         </aside>
 
         {/* Main Viewport Content Area */}
-        <main className="flex-1 w-full max-w-3xl mx-auto px-4 py-4 sm:py-6 pb-24 sm:pb-8">
+        <main className={`flex-1 w-full max-w-3xl mx-auto ${isFullScreenPage ? 'p-0' : 'px-4 py-4 sm:py-6'} pb-24 sm:pb-8`}>
           {children}
         </main>
       </div>
