@@ -177,10 +177,10 @@ export default function PaymentChatPage() {
       setIsProcessing(true);
       const res = await initiatePayment({
         beneficiaryId: beneficiary.id,
-        senderBankAccountId: primaryAccount?.id || 'bank_sbi',
-        sourceCurrency: 'USD',
-        sourceAmount: Number(amount) / 83.5, // approximate USD
-        targetCurrency: beneficiary.currency,
+        senderBankAccountId: primaryAccount?.id || bankAccounts[0]?.id || 'acc_hdfc_inr_02',
+        sourceCurrency: 'INR',
+        sourceAmount: Number(amount),
+        targetCurrency: beneficiary.currency || 'INR',
         purpose: 'FAMILY_SUPPORT',
         note: 'Payment via GPay Chat',
       });

@@ -60,7 +60,51 @@ const KYCSubmitSchema = z.object({
   remittancePurpose: z.enum(['FAMILY_SUPPORT', 'BUSINESS', 'SERVICES', 'EDUCATION', 'TRAVEL']),
 });
 
-// 1. SIGNUP
+const GoogleAuthSchema = z.object({
+  email: z.string().email(),
+  name: z.string().min(1),
+  avatarUrl: z.string().optional(),
+  googleId: z.string().optional(),
+});
+
+// 1. GOOGLE / GMAIL AUTHENTICATION
+router.post('/google', async (req: Request, res: Response) => {
+  try {
+    const data = GoogleAuthSchema.parse(req.body);
+
+    const emailName = data.email.split('@')[0];
+    const upiHandle = `${emailName.toLowerCase().replace(/[^a-z0-9]/g, '')}@oksbi`;
+
+    db.currentUser = {
+      ...db.currentUser,
+      id: `usr_g_${data.googleId || Date.now()}`,
+      name: data.name,
+      email: data.email,
+      upiId: upiHandle,
+      avatarUrl: data.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(data.name)}&background=004A77&color=fff`,
+      kycStatus: 'VERIFIED',
+      kycTier: 2,
+      createdAt: db.currentUser.createdAt || new Date().toISOString(),
+    };
+
+    const token = jwt.sign(
+      { userId: db.currentUser.id, email: db.currentUser.email, role: 'USER' },
+      JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    return res.json({
+      success: true,
+      message: 'Google authentication successful',
+      token,
+      user: db.currentUser,
+    });
+  } catch (err: any) {
+    return res.status(400).json({ error: err.message || 'Google authentication failed', code: 'GOOGLE_AUTH_ERROR' });
+  }
+});
+
+// 2. SIGNUP
 router.post('/signup', async (req: Request, res: Response) => {
   try {
     const data = SignupSchema.parse(req.body);

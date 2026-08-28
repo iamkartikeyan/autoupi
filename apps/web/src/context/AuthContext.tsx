@@ -9,6 +9,7 @@ interface AuthContextType {
   user: UserProfile;
   isAuthenticated: boolean;
   isLoading: boolean;
+  loginWithGoogle: (googleData: { email: string; name: string; avatarUrl?: string; googleId?: string }) => Promise<boolean>;
   sendOtp: (phone: string) => Promise<{ success: boolean; demoCode?: string; message: string; cooldownSeconds?: number }>;
   verifyOtp: (phone: string, code: string) => Promise<boolean>;
   signup: (payload: { name: string; email: string; phone: string; password: string; country?: string }) => Promise<boolean>;
@@ -21,26 +22,36 @@ interface AuthContextType {
 }
 
 const DEFAULT_USER: UserProfile = {
-  id: 'usr_auto_889210',
-  name: 'Aarav Patel',
-  email: 'aarav.patel@example.com',
-  phone: '+1 (555) 234-8901',
-  upiId: 'aarav@autoupi',
-  avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+  id: 'usr_kartik_01',
+  name: 'Kartik Kumar',
+  email: 'kartik.kumar@gmail.com',
+  phone: '+91 98765 43210',
+  upiId: 'kk20140158570@oksbi',
+  avatarUrl: 'https://ui-avatars.com/api/?name=Kartik+Kumar&background=004A77&color=fff',
   role: 'USER',
   kycStatus: 'VERIFIED',
   kycTier: 2,
   dailyLimitUsd: 25000,
   remainingDailyLimitUsd: 21850,
-  country: 'United States',
-  defaultCurrency: 'USD',
+  country: 'India',
+  defaultCurrency: 'INR',
   createdAt: new Date().toISOString(),
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children?: any }) => {
-  const [user, setUser] = useState<UserProfile>(DEFAULT_USER);
+  const [user, setUser] = useState<UserProfile>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('autoupi_user');
+      if (saved) {
+        try {
+          return JSON.parse(saved);
+        } catch (e) {}
+      }
+    }
+    return DEFAULT_USER;
+  });
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(true);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const { showToast } = useToast();
@@ -51,9 +62,10 @@ export const AuthProvider = ({ children }: { children?: any }) => {
         const res = await apiClient.get('/auth/profile');
         if (res.data?.user) {
           setUser(res.data.user);
+          localStorage.setItem('autoupi_user', JSON.stringify(res.data.user));
         }
       } catch (err) {
-        // Fallback default demo user
+        // Keeps local cached user
       }
     };
     fetchProfile();
@@ -237,8 +249,46 @@ export const AuthProvider = ({ children }: { children?: any }) => {
     }
   };
 
+  const loginWithGoogle = async (googleData: { email: string; name: string; avatarUrl?: string; googleId?: string }) => {
+    setIsLoading(true);
+    try {
+      const res = await apiClient.post('/auth/google', googleData);
+      if (res.data?.token && res.data?.user) {
+        localStorage.setItem('autoupi_token', res.data.token);
+        localStorage.setItem('autoupi_user', JSON.stringify(res.data.user));
+        setUser(res.data.user);
+        setIsAuthenticated(true);
+        showToast('Signed In with Google', `Welcome, ${res.data.user.name}!`, 'success');
+        return true;
+      }
+      return false;
+    } catch (err: any) {
+      // Local fallback in case server endpoint is offline
+      const emailName = googleData.email.split('@')[0];
+      const upiHandle = `${emailName.toLowerCase().replace(/[^a-z0-9]/g, '')}@oksbi`;
+      const newUser: UserProfile = {
+        ...user,
+        id: `usr_g_${Date.now()}`,
+        name: googleData.name,
+        email: googleData.email,
+        upiId: upiHandle,
+        avatarUrl: googleData.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(googleData.name)}&background=004A77&color=fff`,
+        kycStatus: 'VERIFIED',
+        kycTier: 2,
+      };
+      localStorage.setItem('autoupi_user', JSON.stringify(newUser));
+      setUser(newUser);
+      setIsAuthenticated(true);
+      showToast('Signed In with Google', `Logged in as ${newUser.name}`, 'success');
+      return true;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const logout = () => {
     localStorage.removeItem('autoupi_token');
+    localStorage.removeItem('autoupi_user');
     setIsAuthenticated(false);
     showToast('Signed Out', 'Session cleared', 'info');
   };
@@ -249,6 +299,7 @@ export const AuthProvider = ({ children }: { children?: any }) => {
         user,
         isAuthenticated,
         isLoading,
+        loginWithGoogle,
         sendOtp,
         verifyOtp,
         signup,
