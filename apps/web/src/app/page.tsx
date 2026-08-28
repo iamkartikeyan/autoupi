@@ -194,10 +194,10 @@ export default function HomePage() {
         {/* ===================================================================== */}
         {/* 2. TOP SEARCH BAR */}
         {/* ===================================================================== */}
-        <div className="relative z-10 max-w-lg mx-auto mb-5">
-          <div
-            onClick={() => router.push('/pay')}
-            className="flex items-center justify-between gap-3 bg-[#1E1F24] hover:bg-[#282A30] border border-[#35383F] rounded-full px-4 py-2.5 shadow-md cursor-pointer transition-all active:scale-[0.99]"
+        <div className="relative z-20 max-w-lg mx-auto mb-5">
+          <Link
+            href="/pay"
+            className="flex items-center justify-between gap-3 bg-[#1E1F24] hover:bg-[#282A30] active:bg-[#35383F] border border-[#35383F] rounded-full px-4 py-2.5 shadow-md cursor-pointer transition-all active:scale-[0.99] block"
           >
             <div className="flex items-center gap-3 min-w-0 flex-1">
               <Search className="w-5 h-5 text-[#8E918F] shrink-0" />
@@ -206,10 +206,13 @@ export default function HomePage() {
               </span>
             </div>
 
-            <Link
-              href="/you"
-              onClick={(e) => e.stopPropagation()}
-              className="shrink-0"
+            <div
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                router.push('/you');
+              }}
+              className="shrink-0 cursor-pointer"
             >
               <div className="w-8 h-8 rounded-full bg-[#1E1F24] border border-[#444746] overflow-hidden flex items-center justify-center text-white font-bold text-xs">
                 {user?.avatarUrl ? (
@@ -218,33 +221,33 @@ export default function HomePage() {
                   user?.name?.charAt(0) || 'K'
                 )}
               </div>
-            </Link>
-          </div>
+            </div>
+          </Link>
         </div>
 
         {/* ===================================================================== */}
         {/* 3. 4 PRIMARY ROYAL BLUE SQUIRCLES */}
         {/* ===================================================================== */}
-        <div className="relative z-10 max-w-lg mx-auto grid grid-cols-4 gap-2 text-center pt-1 pb-1">
+        <div className="relative z-20 max-w-lg mx-auto grid grid-cols-4 gap-2 text-center pt-1 pb-1">
           {/* Action 1: Scan any QR code */}
-          <div
-            onClick={() => router.push('/qr')}
-            className="flex flex-col items-center group cursor-pointer"
+          <Link
+            href="/qr"
+            className="flex flex-col items-center group cursor-pointer active:scale-95 transition-transform"
           >
-            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-[20px] sm:rounded-[22px] bg-[#0B57D0] hover:bg-[#1A73E8] flex items-center justify-center text-white shadow-lg transition-transform active:scale-95">
+            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-[20px] sm:rounded-[22px] bg-[#0B57D0] hover:bg-[#1A73E8] flex items-center justify-center text-white shadow-lg transition-colors">
               <QrCode className="w-6 h-6 sm:w-7 sm:h-7" />
             </div>
             <span className="text-[11px] sm:text-xs font-normal text-[#E3E3E3] mt-2 leading-tight">
               Scan any<br />QR code
             </span>
-          </div>
+          </Link>
 
           {/* Action 2: Pay anyone */}
-          <div
-            onClick={() => router.push('/pay')}
-            className="flex flex-col items-center group cursor-pointer"
+          <Link
+            href="/pay"
+            className="flex flex-col items-center group cursor-pointer active:scale-95 transition-transform"
           >
-            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-[20px] sm:rounded-[22px] bg-[#0B57D0] hover:bg-[#1A73E8] flex items-center justify-center text-white shadow-lg transition-transform active:scale-95">
+            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-[20px] sm:rounded-[22px] bg-[#0B57D0] hover:bg-[#1A73E8] flex items-center justify-center text-white shadow-lg transition-colors">
               <div className="relative flex items-center justify-center">
                 <div className="w-5 h-6 sm:w-6 sm:h-7 rounded-[4px] border-2 border-white flex flex-col items-center justify-center text-[10px] sm:text-[11px] font-bold">
                   ₹
@@ -255,27 +258,27 @@ export default function HomePage() {
             <span className="text-[11px] sm:text-xs font-normal text-[#E3E3E3] mt-2 leading-tight">
               Pay<br />anyone
             </span>
-          </div>
+          </Link>
 
           {/* Action 3: Bank transfer */}
-          <div
-            onClick={() => router.push('/transfer')}
-            className="flex flex-col items-center group cursor-pointer"
+          <Link
+            href="/transfer"
+            className="flex flex-col items-center group cursor-pointer active:scale-95 transition-transform"
           >
-            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-[20px] sm:rounded-[22px] bg-[#0B57D0] hover:bg-[#1A73E8] flex items-center justify-center text-white shadow-lg transition-transform active:scale-95">
+            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-[20px] sm:rounded-[22px] bg-[#0B57D0] hover:bg-[#1A73E8] flex items-center justify-center text-white shadow-lg transition-colors">
               <Building2 className="w-6 h-6 sm:w-7 sm:h-7" />
             </div>
             <span className="text-[11px] sm:text-xs font-normal text-[#E3E3E3] mt-2 leading-tight">
               Bank<br />transfer
             </span>
-          </div>
+          </Link>
 
           {/* Action 4: Mobile recharge */}
-          <div
-            onClick={() => router.push('/recharge')}
-            className="flex flex-col items-center group cursor-pointer"
+          <Link
+            href="/recharge"
+            className="flex flex-col items-center group cursor-pointer active:scale-95 transition-transform"
           >
-            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-[20px] sm:rounded-[22px] bg-[#0B57D0] hover:bg-[#1A73E8] flex items-center justify-center text-white shadow-lg transition-transform active:scale-95">
+            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-[20px] sm:rounded-[22px] bg-[#0B57D0] hover:bg-[#1A73E8] flex items-center justify-center text-white shadow-lg transition-colors">
               <div className="relative flex items-center justify-center">
                 <Smartphone className="w-6 h-6 sm:w-7 sm:h-7" />
                 <Zap className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-white fill-white absolute inset-0 m-auto" />
@@ -284,9 +287,10 @@ export default function HomePage() {
             <span className="text-[11px] sm:text-xs font-normal text-[#E3E3E3] mt-2 leading-tight">
               Mobile<br />recharge
             </span>
-          </div>
+          </Link>
         </div>
       </div>
+
 
       {/* ========================================================================= */}
       {/* 4. 3 CAPSULE PILLS ROW (UPI Lite, Rewards, UPI ID) */}
@@ -345,10 +349,10 @@ export default function HomePage() {
 
         <div className="grid grid-cols-4 gap-y-6 gap-x-2 text-center">
           {PEOPLE_LIST.map((person) => (
-            <div
+            <Link
               key={person.id}
-              onClick={() => router.push(`/pay/chat/${person.id}`)}
-              className="flex flex-col items-center group cursor-pointer"
+              href={`/pay/chat/${person.id}`}
+              className="flex flex-col items-center group cursor-pointer active:scale-95 transition-transform"
             >
               <div className="relative">
                 {person.avatarUrl ? (
@@ -367,13 +371,13 @@ export default function HomePage() {
               <span className="text-xs font-normal text-[#E3E3E3] mt-2 leading-tight whitespace-pre-line truncate max-w-[80px]">
                 {person.displayName}
               </span>
-            </div>
+            </Link>
           ))}
 
           {/* Item 8: More */}
-          <div
-            onClick={() => router.push('/pay')}
-            className="flex flex-col items-center group cursor-pointer"
+          <Link
+            href="/pay"
+            className="flex flex-col items-center group cursor-pointer active:scale-95 transition-transform"
           >
             <div className="w-14 h-14 rounded-full bg-[#1E1F24] hover:bg-[#282A30] border border-[#35383F] flex items-center justify-center text-white group-hover:scale-105 transition-transform shadow-md">
               <ChevronDown className="w-6 h-6 text-white" />
@@ -381,9 +385,10 @@ export default function HomePage() {
             <span className="text-xs font-normal text-[#E3E3E3] mt-2 leading-tight">
               More
             </span>
-          </div>
+          </Link>
         </div>
       </div>
+
 
       {/* ========================================================================= */}
       {/* 6. "OFFERS & REWARDS" (3 Gradient Badges + Loan Card) */}
